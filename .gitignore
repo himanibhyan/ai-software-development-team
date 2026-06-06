@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+
+# Environment
+.env
+.env.local
+*.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+.pnp
+
+# Next.js
+.next/
+out/
+
+# Docker
+docker/postgres-data/
+docker/chroma-data/
+
+# Logs
+*.log
+logs/
+
+# Checkpoints & backups
+checkpoints/*.zip
+backups/*.zip
+
+# Coverage
+htmlcov/
+.coverage
+coverage/
