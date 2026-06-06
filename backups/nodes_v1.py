@@ -157,48 +157,10 @@ async def validate_input_node(state: GraphState) -> dict:
 
 
 async def persistence_node(state: GraphState) -> dict:
-    """Node: Final state — persist artifacts, save checkpoints, and mark complete."""
+    """Node: Final state — persist artifacts and mark complete."""
     from datetime import datetime, timezone
 
     logger.info("node:persistence", project_id=state["project_id"])
-
-    try:
-        from app.services.storage_service import storage_service
-
-        # Save full-state checkpoint to disk
-        storage_service.save_checkpoint(
-            project_id=state["project_id"],
-            state=state,
-            description="Pipeline complete",
-        )
-
-        # Persist generated source code to disk
-        source = state.get("source_code")
-        if source and isinstance(source, dict):
-            files = source.get("files", [])
-            if files:
-                storage_service.save_generated_code(
-                    project_id=state["project_id"],
-                    files=files,
-                    revision=state.get("revision", 1),
-                )
-
-        # Save project manifest
-        manifest = {
-            "project_id": state["project_id"],
-            "status": "completed",
-            "revision": state.get("revision", 0),
-            "completed_at": datetime.now(timezone.utc).isoformat(),
-            "artifacts": {
-                k: v is not None
-                for k, v in state.items()
-                if k in ("requirements", "architecture", "source_code", "test_suite", "documentation", "review_report")
-            },
-        }
-        storage_service.save_manifest(state["project_id"], manifest)
-
-    except Exception as e:
-        logger.warning("persistence_node_disk_failed", error=str(e))
 
     summary = {
         "agent": "persistence",

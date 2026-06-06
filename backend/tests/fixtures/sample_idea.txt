@@ -1,0 +1,8 @@
+Build a REST API for a collaborative task management system with the following features:
+1. User registration and authentication (JWT-based)
+2. Create, read, update, and delete tasks
+3. Assign tasks to users
+4. Add comments to tasks
+5. Real-time notifications via WebSocket when tasks are updated
+6. Search and filter tasks by status, priority, assignee
+7. Role-based access control (admin, manager, member)

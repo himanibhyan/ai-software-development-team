@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from langgraph.graph import END, StateGraph
-from langgraph.checkpoint import MemorySaver
+from langgraph.checkpoint.memory import MemorySaver
 
 from app.core.logging import get_logger
 from app.graph.edges import (

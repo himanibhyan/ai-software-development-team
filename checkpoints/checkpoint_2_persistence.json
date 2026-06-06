@@ -174,12 +174,6 @@
       "path": "/Users/himani/ai-software-development-team/checkpoints/checkpoint_1_requirements.json",
       "timestamp": "2026-06-06T12:00:00Z",
       "description": "Initial project infrastructure and requirements documents"
-    },
-    {
-      "name": "checkpoint_2_persistence.json",
-      "path": "/Users/himani/ai-software-development-team/checkpoints/checkpoint_2_persistence.json",
-      "timestamp": "2026-06-06T11:13:00Z",
-      "description": "Storage/persist services, test fixes, validation alignment, init-db.sql"
     }
   ],
   "backups": [

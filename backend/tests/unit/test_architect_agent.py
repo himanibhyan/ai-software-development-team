@@ -382,15 +382,25 @@ class TestArchitectAgent:
                 ComponentSpec(
                     name="Only One",
                     description="Single component that fails minimum validation check requirement.",
-                    technology="Python",
-                    responsibilities=["Do everything"],
+                    technology="Python 3.12",
+                    responsibilities=["Do everything", "Handle all logic"],
                     dependencies=[],
                 ),
+                ComponentSpec(
+                    name="Second",
+                    description="Second component still below the minimum threshold of three.",
+                    technology="FastAPI 0.111",
+                    responsibilities=["Route requests", "Process data"],
+                    dependencies=["Only One"],
+                ),
             ],
-            data_flow=[{"step": "1", "description": "Something happens"}],
-            tech_stack={"lang": "Python", "framework": "FastAPI"},
+            data_flow=[
+                {"step": "1", "description": "Something happens step one in the flow here"},
+                {"step": "2", "description": "Something happens step two in the flow here too"},
+            ],
+            tech_stack={"lang": "Python", "framework": "FastAPI", "db": "PostgreSQL 16"},
             deployment_strategy="Simple container deployment strategy for testing the validation logic here.",
-            security_considerations=["Auth"],
+            security_considerations=["Auth", "TLS", "Rate limiting"],
         )
         with pytest.raises(ValueError, match="Too few components"):
             agent._validate_output(doc)
@@ -537,6 +547,7 @@ class TestArchitectAgent:
             tech_stack={
                 "database": "PostgreSQL 16",
                 "cache": "Redis 7.2",
+                "language": "Python 3.12",
             },
             deployment_strategy="Docker Compose for local dev, Kubernetes for prod with HPA auto-scaling configured.",
             security_considerations=[

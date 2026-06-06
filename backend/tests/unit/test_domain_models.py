@@ -26,29 +26,53 @@ class TestRequirementsDoc:
     def test_valid_requirements(self):
         doc = RequirementsDoc(
             title="Test Project",
-            purpose="Testing",
-            scope="Full stack",
-            functional_requirements=[{"id": "FR-01", "description": "User login"}],
-            non_functional_requirements=[{"id": "NFR-01", "description": "Fast"}],
-            user_stories=[{"id": "US-01", "description": "As a user..."}],
-            constraints=["Must use Python"],
-            assumptions=["Internet available"],
-            open_issues=["Data model"],
+            purpose="A comprehensive task management system for agile teams with real-time collaboration features",
+            scope="Full stack web application including REST API, WebSocket notifications, and modern frontend",
+            functional_requirements=[
+                {"id": "FR-01", "description": "Users shall register and authenticate using email and password", "priority": "P0"},
+                {"id": "FR-02", "description": "Users shall create tasks with title, description, and priority", "priority": "P0"},
+                {"id": "FR-03", "description": "Users shall update task status and reassign tasks", "priority": "P0"},
+                {"id": "FR-04", "description": "Users shall add comments to tasks with markdown support", "priority": "P1"},
+                {"id": "FR-05", "description": "Users shall search and filter tasks by multiple criteria", "priority": "P1"},
+            ],
+            non_functional_requirements=[
+                {"id": "NFR-01", "description": "API responses under 200ms at 95th percentile under 1000 RPM", "category": "performance"},
+                {"id": "NFR-02", "description": "All passwords hashed with bcrypt, TLS 1.3 for all traffic", "category": "security"},
+                {"id": "NFR-03", "description": "System maintains 99.9% uptime during peak business hours", "category": "availability"},
+            ],
+            user_stories=[
+                {"id": "US-01", "description": "As a team member, I want to create and assign tasks so that work is organized", "priority": "P0"},
+                {"id": "US-02", "description": "As a manager, I want real-time task updates so I can track progress", "priority": "P0"},
+            ],
+            constraints=["Must use Python 3.12"],
+            assumptions=["Users have reliable internet access"],
         )
         assert doc.title == "Test Project"
-        assert len(doc.functional_requirements) == 1
+        assert len(doc.functional_requirements) == 5
 
     def test_requirements_doc_is_frozen(self):
         doc = RequirementsDoc(
-            title="Test",
-            purpose="Test",
-            scope="Test",
-            functional_requirements=[],
-            non_functional_requirements=[],
-            user_stories=[],
-            constraints=[],
-            assumptions=[],
-            open_issues=[],
+            title="Test Project",
+            purpose="A comprehensive task management system for agile teams with real-time collaboration features",
+            scope="Full stack web application including REST API, WebSocket notifications, and modern frontend",
+            functional_requirements=[
+                {"id": "FR-01", "description": "Users shall register and authenticate using email and password", "priority": "P0"},
+                {"id": "FR-02", "description": "Users shall create tasks with title, description, and priority", "priority": "P0"},
+                {"id": "FR-03", "description": "Users shall update task status and reassign tasks", "priority": "P0"},
+                {"id": "FR-04", "description": "Users shall add comments to tasks with markdown support", "priority": "P1"},
+                {"id": "FR-05", "description": "Users shall search and filter tasks by multiple criteria", "priority": "P1"},
+            ],
+            non_functional_requirements=[
+                {"id": "NFR-01", "description": "API responses under 200ms at 95th percentile under 1000 RPM", "category": "performance"},
+                {"id": "NFR-02", "description": "All passwords hashed with bcrypt, TLS 1.3 for all traffic", "category": "security"},
+                {"id": "NFR-03", "description": "System maintains 99.9% uptime during peak business hours", "category": "availability"},
+            ],
+            user_stories=[
+                {"id": "US-01", "description": "As a team member, I want to create and assign tasks so that work is organized", "priority": "P0"},
+                {"id": "US-02", "description": "As a manager, I want real-time task updates so I can track progress", "priority": "P0"},
+            ],
+            constraints=["Must use Python 3.12"],
+            assumptions=["Users have reliable internet access"],
         )
         with pytest.raises(ValidationError):
             doc.title = "New Title"

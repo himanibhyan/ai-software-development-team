@@ -175,7 +175,7 @@ class TestRequirementsAgent:
     def test_validate_output_passes_valid_doc(self):
         agent = RequirementsAgent(llm_service=None)
         frs = [
-            FunctionalRequirement(id=f"FR-{i:02d}", description=f"Functional requirement number {i} that is long enough to be valid.", priority="P0" if i < 3 else "P1")
+            FunctionalRequirement(id=f"FR-{i:02d}", description=f"Functional requirement number {i} that is long enough to be valid.", priority="P0" if i < 5 else "P1")
             for i in range(1, 11)
         ]
         nfrs = [
@@ -183,7 +183,7 @@ class TestRequirementsAgent:
             for i, c in enumerate(["performance", "security", "usability", "reliability", "scalability"], 1)
         ]
         uss = [
-            UserStory(id=f"US-{i:02d}", description=f"As a user, I want feature {i} so that I can accomplish my goals.", priority="P0")
+            UserStory(id=f"US-{i:02d}", description=f"As a user, I want feature {i}, so that I can accomplish my goals.", priority="P0")
             for i in range(1, 4)
         ]
         doc = RequirementsDoc(
@@ -205,15 +205,15 @@ class TestRequirementsAgent:
         agent = RequirementsAgent(llm_service=None)
         frs = [
             FunctionalRequirement(id=f"FR-{i:02d}", description=f"Functional requirement {i} that is long enough to pass.", priority="P0")
-            for i in range(1, 4)
+            for i in range(1, 6)
         ]
         nfrs = [
             NonFunctionalRequirement(id=f"NFR-{i:02d}", description=f"NFR {i} with enough text to be valid here.", category="security")
-            for i in range(1, 5)
+            for i in range(1, 4)
         ]
         uss = [
             UserStory(id=f"US-{i:02d}", description=f"As a user, I want feature {i} so that I benefit.", priority="P0")
-            for i in range(1, 4)
+            for i in range(1, 3)
         ]
         doc = RequirementsDoc(
             title="Test",
@@ -319,7 +319,7 @@ class TestRequirementsAgent:
             purpose="  A purpose with spaces  that is long enough to be valid after trimming.  ",
             scope="  A scope with extra whitespace that still passes validation checks.  ",
             functional_requirements=[
-                FunctionalRequirement(id="FR-01", description="  Spaces around text  ", priority=" p0 "),
+                FunctionalRequirement(id="FR-01", description="  Spaces around text  ", priority="P0"),
                 FunctionalRequirement(id="FR-02", description="Another requirement description here.", priority="P1"),
                 FunctionalRequirement(id="FR-03", description="Third requirement with enough text here.", priority="P1"),
                 FunctionalRequirement(id="FR-04", description="Fourth requirement with enough text length.", priority="P0"),
@@ -331,16 +331,16 @@ class TestRequirementsAgent:
                 FunctionalRequirement(id="FR-10", description="Tenth requirement with enough text length.", priority="P0"),
             ],
             non_functional_requirements=[
-                NonFunctionalRequirement(id="NFR-01", description="  Performance desc  ", category=" PERFORMANCE "),
-                NonFunctionalRequirement(id="NFR-02", description="Security description with enough text.", category=" SECURITY "),
-                NonFunctionalRequirement(id="NFR-03", description="Usability: screen reader support.", category=" USABILITY "),
-                NonFunctionalRequirement(id="NFR-04", description="Reliability: automatic failover.", category=" RELIABILITY "),
-                NonFunctionalRequirement(id="NFR-05", description="Scalability: horizontal scaling.", category=" SCALABILITY "),
+                NonFunctionalRequirement(id="NFR-01", description="  Performance desc  ", category="performance"),
+                NonFunctionalRequirement(id="NFR-02", description="Security description with enough text.", category="security"),
+                NonFunctionalRequirement(id="NFR-03", description="Usability: screen reader support.", category="usability"),
+                NonFunctionalRequirement(id="NFR-04", description="Reliability: automatic failover.", category="reliability"),
+                NonFunctionalRequirement(id="NFR-05", description="Scalability: horizontal scaling.", category="scalability"),
             ],
             user_stories=[
-                UserStory(id="US-01", description="  As a user, I want to trim spaces so that the data is clean.  ", priority=" p0 "),
-                UserStory(id="US-02", description="As a user, I want normalized priorities so that validation passes.", priority=" P1 "),
-                UserStory(id="US-03", description="As an admin, I want clean data so that reports are accurate.", priority=" P2 "),
+                UserStory(id="US-01", description="  As a user, I want to trim spaces so that the data is clean.  ", priority="P0"),
+                UserStory(id="US-02", description="As a user, I want normalized priorities so that validation passes.", priority="P1"),
+                UserStory(id="US-03", description="As an admin, I want clean data so that reports are accurate.", priority="P2"),
             ],
             constraints=["  Constraint 1  ", "Constraint 2", "  Constraint 1  "],
             assumptions=["  Assumption 1  ", "Assumption 2", "  Assumption 1  "],

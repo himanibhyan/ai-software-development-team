@@ -47,6 +47,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     else:
         logger.warning("agent_registry not initialized: LLM service unavailable")
 
+    # Verify storage layer
+    from app.services.storage_service import storage_service
+    storage_service._ensure_dirs()
+    logger.info("storage_layer_ready")
+
     # Pre-compile the pipeline
     from app.graph.pipeline import get_pipeline
     pipeline = get_pipeline()

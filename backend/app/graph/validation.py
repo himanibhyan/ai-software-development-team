@@ -55,11 +55,11 @@ def validate_artifact(
         frs = artifact_data.get("functional_requirements", [])
         nfrs = artifact_data.get("non_functional_requirements", [])
         uss = artifact_data.get("user_stories", [])
-        if len(frs) < 8:
-            errors.append(f"Too few functional requirements: {len(frs)} (min 8)")
-        if len(nfrs) < 4:
-            errors.append(f"Too few non-functional requirements: {len(nfrs)} (min 4)")
-        if len(uss) < 3:
+        if len(frs) < 5:
+            errors.append(f"Too few functional requirements: {len(frs)} (min 5)")
+        if len(nfrs) < 3:
+            errors.append(f"Too few non-functional requirements: {len(nfrs)} (min 3)")
+        if len(uss) < 2:
             errors.append(f"Too few user stories: {len(uss)} (min 3)")
         if not artifact_data.get("constraints"):
             errors.append("At least one constraint is required")

@@ -1,0 +1,64 @@
+{
+  "requirements": {
+    "title": "Task Management API",
+    "purpose": "A collaborative task management system that enables teams to create, assign, track, and discuss tasks in real-time.",
+    "scope": "In-scope v1: REST API with JWT auth, CRUD tasks, comments, WebSocket notifications, RBAC. Out-of-scope: file attachments, calendar integration, Gantt charts.",
+    "functional_requirements": [
+      {"id": "FR-01", "description": "Users shall register with email and password, receive email verification.", "priority": "P0"},
+      {"id": "FR-02", "description": "Users shall authenticate via email/password and receive JWT tokens.", "priority": "P0"},
+      {"id": "FR-03", "description": "Users shall create tasks with title, description, priority, due date, and assignee.", "priority": "P0"},
+      {"id": "FR-04", "description": "Users shall update task status (todo, in_progress, done) and other fields.", "priority": "P0"},
+      {"id": "FR-05", "description": "Users shall delete tasks they own or have admin rights for.", "priority": "P0"},
+      {"id": "FR-06", "description": "Users shall assign tasks to other registered users.", "priority": "P0"},
+      {"id": "FR-07", "description": "Users shall add comments to tasks with markdown support.", "priority": "P1"},
+      {"id": "FR-08", "description": "Users shall receive real-time WebSocket notifications on task updates.", "priority": "P0"},
+      {"id": "FR-09", "description": "Users shall search tasks by title, status, priority, and assignee.", "priority": "P1"},
+      {"id": "FR-10", "description": "Admins shall manage user roles and permissions.", "priority": "P0"}
+    ],
+    "non_functional_requirements": [
+      {"id": "NFR-01", "description": "API responses shall be under 200ms at 95th percentile under 500 RPM.", "category": "performance"},
+      {"id": "NFR-02", "description": "All passwords shall be hashed with bcrypt; all API traffic over TLS 1.3.", "category": "security"},
+      {"id": "NFR-03", "description": "The system shall maintain 99.9% uptime during business hours.", "category": "availability"},
+      {"id": "NFR-04", "description": "The API shall support up to 10,000 concurrent users.", "category": "scalability"},
+      {"id": "NFR-05", "description": "WebSocket reconnection shall happen within 3 seconds on disconnect.", "category": "reliability"}
+    ],
+    "user_stories": [
+      {"id": "US-01", "description": "As a team member, I want to create and assign tasks so that work is organized.", "priority": "P0"},
+      {"id": "US-02", "description": "As a manager, I want to view task progress in real-time so I can track project status.", "priority": "P0"},
+      {"id": "US-03", "description": "As an admin, I want to manage user roles so that access control is maintained.", "priority": "P1"}
+    ],
+    "constraints": ["Must use Python 3.12+", "Must use PostgreSQL 16", "Must support Docker deployment"],
+    "assumptions": ["Team has Docker installed", "PostgreSQL 16 available", "Network latency < 50ms to server"],
+    "open_issues": ["Should we support OAuth2 as an alternative auth method?"]
+  },
+
+  "architecture": {
+    "title": "Task Manager System Architecture",
+    "overview": "Layered REST API architecture with WebSocket support for real-time updates. PostgreSQL for persistence, Redis for pub/sub messaging and caching.",
+    "architecture_pattern": "layered",
+    "components": [
+      {"name": "API Gateway", "description": "Entry point for all client requests, handles auth and routing", "technology": "FastAPI 0.111", "responsibilities": ["Request routing", "Authentication", "Rate limiting"], "dependencies": []},
+      {"name": "Task Service", "description": "Core business logic for task CRUD operations", "technology": "FastAPI 0.111", "responsibilities": ["Task CRUD", "Assignment logic", "Search/Filter"], "dependencies": ["Auth Service"]},
+      {"name": "Auth Service", "description": "User authentication and authorization", "technology": "FastAPI 0.111", "responsibilities": ["Registration", "Login", "JWT issuance", "Role management"], "dependencies": []},
+      {"name": "Notification Service", "description": "WebSocket-based real-time notifications", "technology": "FastAPI 0.111 + WebSockets", "responsibilities": ["WebSocket connections", "Event publishing", "Client broadcast"], "dependencies": ["Redis"]}
+    ],
+    "data_flow": [
+      {"step": "1", "description": "Client authenticates via POST /auth/login, receives JWT"},
+      {"step": "2", "description": "Client sends authenticated request to API Gateway"},
+      {"step": "3", "description": "Gateway validates JWT, routes to Task Service"},
+      {"step": "4", "description": "Task Service processes request, reads/writes PostgreSQL"},
+      {"step": "5", "description": "Task Service publishes event to Redis pub/sub"},
+      {"step": "6", "description": "Notification Service picks up event, pushes to connected WebSocket clients"}
+    ],
+    "tech_stack": {
+      "language": "Python 3.12",
+      "framework": "FastAPI 0.111",
+      "database": "PostgreSQL 16",
+      "cache": "Redis 7.2",
+      "auth": "JWT + bcrypt",
+      "testing": "pytest 8.0"
+    },
+    "deployment_strategy": "Docker Compose for development. Kubernetes for production with HPA auto-scaling.",
+    "security_considerations": ["JWT with 15min access and 7-day refresh tokens", "bcrypt password hashing", "TLS 1.3 for all traffic", "Rate limiting on auth endpoints"]
+  }
+}

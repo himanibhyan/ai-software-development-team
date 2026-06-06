@@ -16,15 +16,28 @@ class TestValidateArtifact:
 
     def test_valid_requirements_passes(self):
         data = {
-            "title": "Test",
-            "purpose": "Testing",
-            "scope": "Full",
-            "functional_requirements": [{"id": "FR-01", "description": "Login"} for _ in range(5)],
-            "non_functional_requirements": [{"id": "NFR-01", "description": "Fast"} for _ in range(3)],
-            "user_stories": [{"id": "US-01", "description": "As a user..."}],
-            "constraints": [],
-            "assumptions": [],
-            "open_issues": [],
+            "title": "Test Project",
+            "purpose": "A comprehensive task management system for agile teams with real-time collaboration",
+            "scope": "Full stack application including REST API, WebSocket notifications, and modern frontend",
+            "functional_requirements": [
+                {"id": "FR-01", "description": "Users shall register and authenticate using email and password", "priority": "P0"},
+                {"id": "FR-02", "description": "Users shall create tasks with title, description, and priority", "priority": "P0"},
+                {"id": "FR-03", "description": "Users shall update task status and reassign tasks to other users", "priority": "P0"},
+                {"id": "FR-04", "description": "Users shall add comments to tasks with markdown formatting support", "priority": "P1"},
+                {"id": "FR-05", "description": "Users shall search and filter tasks by status, priority, and assignee", "priority": "P1"},
+            ],
+            "non_functional_requirements": [
+                {"id": "NFR-01", "description": "API responses under 200ms at 95th percentile under 1000 RPM", "category": "performance"},
+                {"id": "NFR-02", "description": "All passwords hashed with bcrypt, TLS 1.3 for all traffic", "category": "security"},
+                {"id": "NFR-03", "description": "System maintains 99.9% uptime during peak business hours", "category": "availability"},
+            ],
+            "user_stories": [
+                {"id": "US-01", "description": "As a team member, I want to create and assign tasks so that work is organized", "priority": "P0"},
+                {"id": "US-02", "description": "As a manager, I want real-time task updates so I can track progress", "priority": "P0"},
+            ],
+            "constraints": ["Must use Python 3.12+"],
+            "assumptions": ["Users have reliable internet access"],
+            "open_issues": ["Should we support OAuth?"],
         }
         errors = validate_artifact("requirements", data)
         assert errors == []
@@ -32,13 +45,17 @@ class TestValidateArtifact:
     def test_requirements_too_few_frs(self):
         data = {
             "title": "Test",
-            "purpose": "Testing",
-            "scope": "Full",
-            "functional_requirements": [{"id": "FR-01", "description": "Login"}],
-            "non_functional_requirements": [{"id": "NFR-01", "description": "Fast"} for _ in range(3)],
-            "user_stories": [],
-            "constraints": [],
-            "assumptions": [],
+            "purpose": "Task management system for agile teams with real-time collaboration features",
+            "scope": "Full stack application including REST API and WebSocket notifications",
+            "functional_requirements": [{"id": "FR-01", "description": "Users shall login", "priority": "P0"}],
+            "non_functional_requirements": [
+                {"id": "NFR-01", "description": "API responses under 200ms at 95th percentile", "category": "performance"},
+                {"id": "NFR-02", "description": "All passwords hashed with bcrypt, TLS 1.3", "category": "security"},
+                {"id": "NFR-03", "description": "System maintains 99.9% uptime during business hours", "category": "availability"},
+            ],
+            "user_stories": [{"id": "US-01", "description": "As a user, I want to login so that I can access my tasks", "priority": "P0"}],
+            "constraints": ["Must use Python"],
+            "assumptions": ["Internet available"],
             "open_issues": [],
         }
         errors = validate_artifact("requirements", data)
