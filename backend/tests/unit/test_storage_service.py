@@ -7,26 +7,30 @@ from uuid import uuid4
 import pytest
 
 from app.services.storage_service import (
+    BACKUPS_DIR,
+    CHECKPOINTS_DIR,
     STORAGE_DIR,
     StorageService,
     storage_service,
 )
 
 
+def _clean_dir(directory):
+    """Remove all files from a directory tree."""
+    if directory.exists():
+        for f in directory.rglob("*"):
+            if f.is_file():
+                f.unlink()
+
+
 @pytest.fixture(autouse=True)
 def clean_storage():
     """Clean storage directories before and after each test."""
-    for subdir in STORAGE_DIR.iterdir():
-        if subdir.is_dir():
-            for f in subdir.iterdir():
-                if f.is_file():
-                    f.unlink()
+    for d in (STORAGE_DIR, CHECKPOINTS_DIR, BACKUPS_DIR):
+        _clean_dir(d)
     yield
-    for subdir in STORAGE_DIR.iterdir():
-        if subdir.is_dir():
-            for f in subdir.iterdir():
-                if f.is_file():
-                    f.unlink()
+    for d in (STORAGE_DIR, CHECKPOINTS_DIR, BACKUPS_DIR):
+        _clean_dir(d)
 
 
 def test_checkpoint_roundtrip():

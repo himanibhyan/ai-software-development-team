@@ -14,11 +14,12 @@ logger = get_logger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 STORAGE_DIR = PROJECT_ROOT / "storage"
-CHECKPOINTS_DIR = STORAGE_DIR / "checkpoints"
-BACKUPS_DIR = STORAGE_DIR / "backups"
+CHECKPOINTS_DIR = PROJECT_ROOT / "checkpoints"
+BACKUPS_DIR = PROJECT_ROOT / "backups"
 GENERATED_CODE_DIR = STORAGE_DIR / "generated_code"
 MANIFESTS_DIR = STORAGE_DIR / "manifests"
 LOGS_DIR = STORAGE_DIR / "logs"
+EXPORTS_DIR = STORAGE_DIR / "exports"
 
 
 class StorageService:
@@ -34,7 +35,7 @@ class StorageService:
     # ── Directory setup ───────────────────────────────────────────
 
     def _ensure_dirs(self) -> None:
-        for d in (CHECKPOINTS_DIR, BACKUPS_DIR, GENERATED_CODE_DIR, MANIFESTS_DIR, LOGS_DIR):
+        for d in (CHECKPOINTS_DIR, BACKUPS_DIR, GENERATED_CODE_DIR, MANIFESTS_DIR, LOGS_DIR, EXPORTS_DIR):
             d.mkdir(parents=True, exist_ok=True)
 
     # ── Checkpoints ───────────────────────────────────────────────
@@ -103,14 +104,16 @@ class StorageService:
         backup_path = BACKUPS_DIR / f"backup_{label}.zip"
 
         with zipfile.ZipFile(backup_path, "w", zipfile.ZIP_DEFLATED) as zf:
-            for directory in (CHECKPOINTS_DIR, GENERATED_CODE_DIR, MANIFESTS_DIR):
-                for file_path in directory.rglob("*"):
-                    if file_path.is_file():
-                        zf.write(file_path, file_path.relative_to(STORAGE_DIR))
+            for directory in (CHECKPOINTS_DIR, BACKUPS_DIR, GENERATED_CODE_DIR, MANIFESTS_DIR):
+                if directory.exists():
+                    for file_path in directory.rglob("*"):
+                        if file_path.is_file():
+                            arcname = f"{directory.name}/{file_path.relative_to(directory)}"
+                            zf.write(file_path, str(arcname))
 
             manifest = PROJECT_ROOT / "project_manifest.json"
             if manifest.exists():
-                zf.write(manifest, manifest.relative_to(PROJECT_ROOT))
+                zf.write(manifest, "project_manifest.json")
 
         logger.info("backup_created", path=str(backup_path))
         return backup_path
@@ -225,9 +228,8 @@ class StorageService:
     ) -> Path:
         """Export a complete project (all artifacts) as a ZIP file."""
         export_name = f"project_{project_id}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
-        export_dir = STORAGE_DIR / "exports"
-        export_dir.mkdir(exist_ok=True)
-        zip_path = export_dir / f"{export_name}.zip"
+        EXPORTS_DIR.mkdir(exist_ok=True)
+        zip_path = EXPORTS_DIR / f"{export_name}.zip"
 
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
             for artifact_key in ("requirements", "architecture", "source_code", "test_suite", "documentation"):
@@ -244,6 +246,143 @@ class StorageService:
 
         logger.info("project_exported", project_id=project_id, path=str(zip_path))
         return zip_path
+
+    # ── Versioned file backup (before overwrite) ────────────────
+
+    def backup_before_write(
+        self,
+        file_path: Path,
+    ) -> Optional[Path]:
+        """If the file exists, create a versioned backup before overwriting.
+
+        Backups are stored in ``/backups`` with versioned naming:
+        ``filename_v1.py``, ``filename_v2.py``, etc.
+        Returns the backup path, or None if the file did not exist.
+        """
+        if not file_path.exists():
+            return None
+
+        stem = file_path.stem
+        suffix = file_path.suffix
+
+        existing = sorted(BACKUPS_DIR.glob(f"{stem}_v*{suffix}"))
+        next_ver = 1
+        if existing:
+            last = existing[-1]
+            try:
+                parts = last.stem.rsplit("_v", 1)
+                next_ver = int(parts[-1]) + 1
+            except (ValueError, IndexError):
+                next_ver = len(existing) + 1
+
+        backup_name = f"{stem}_v{next_ver}{suffix}"
+        backup_path = BACKUPS_DIR / backup_name
+        shutil.copy2(file_path, backup_path)
+
+        logger.info(
+            "file_backed_up",
+            original=str(file_path),
+            backup=str(backup_path),
+            version=next_ver,
+        )
+        return backup_path
+
+    # ── Folder export ────────────────────────────────────────────
+
+    def export_project_folder(
+        self,
+        project_id: str,
+        state: dict[str, Any],
+        target_dir: Optional[Path] = None,
+    ) -> Path:
+        """Export project artifacts as a folder tree on disk.
+
+        Creates a directory with subdirectories for each artifact:
+        ``{target_dir}/{project_id}/requirements/``, ``architecture/``, etc.
+        """
+        if target_dir is None:
+            target_dir = EXPORTS_DIR / project_id
+        else:
+            target_dir = target_dir / project_id
+
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        for artifact_key in ("requirements", "architecture", "source_code", "test_suite", "documentation"):
+            data = state.get(artifact_key)
+            if data:
+                artifact_dir = target_dir / artifact_key
+                artifact_dir.mkdir(exist_ok=True)
+                (artifact_dir / "data.json").write_text(
+                    json.dumps(data, indent=2, default=str)
+                )
+
+        code = state.get("source_code", {})
+        files = code.get("files", []) if isinstance(code, dict) else []
+        for entry in files:
+            path = entry.get("path", "unknown")
+            content = entry.get("content", "")
+            out_path = target_dir / "generated" / path
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(content)
+
+        logger.info(
+            "project_folder_exported",
+            project_id=project_id,
+            target=str(target_dir),
+        )
+        return target_dir
+
+    # ── Snapshot export ──────────────────────────────────────────
+
+    def export_project_snapshot(
+        self,
+        project_id: str,
+        state: dict[str, Any],
+    ) -> Path:
+        """Create a complete project snapshot (ZIP + folder + manifest).
+
+        Combines ZIP export, folder export, and writes a snapshot
+        manifest describing the full project state.
+        """
+        snapshot_dir = EXPORTS_DIR / "snapshots" / project_id
+        snapshot_dir.mkdir(parents=True, exist_ok=True)
+
+        # folder export into snapshot directory
+        folder_path = self.export_project_folder(project_id, state, target_dir=snapshot_dir)
+
+        # ZIP export
+        zip_path = self.export_project_zip(project_id, state)
+
+        # copy ZIP into snapshot directory
+        shutil.copy2(zip_path, snapshot_dir / zip_path.name)
+
+        # snapshot manifest
+        snapshot_manifest = {
+            "project_id": project_id,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "status": state.get("status", "unknown"),
+            "revision": state.get("revision", 0),
+            "artifacts": {
+                k: v is not None
+                for k, v in state.items()
+                if k in ("requirements", "architecture", "source_code", "test_suite", "documentation", "review_report")
+            },
+            "exports": {
+                "folder": str(folder_path),
+                "zip": str(zip_path),
+                "snapshot": str(snapshot_dir),
+            },
+        }
+        (snapshot_dir / "snapshot_manifest.json").write_text(
+            json.dumps(snapshot_manifest, indent=2, default=str)
+        )
+
+        logger.info(
+            "project_snapshot_created",
+            project_id=project_id,
+            snapshot=str(snapshot_dir),
+        )
+        return snapshot_dir
 
     # ── Cleanup ──────────────────────────────────────────────────
 

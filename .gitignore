@@ -42,6 +42,19 @@ logs/
 # Checkpoints & backups
 checkpoints/*.zip
 backups/*.zip
+backups/backup_*/
+
+# Storage - auto-generated artifacts
+storage/generated_code/
+storage/manifests/
+storage/logs/
+storage/exports/
+storage/backups/
+storage/checkpoints/
+
+# Test database
+*.db
+test.db
 
 # Coverage
 htmlcov/
