@@ -14,8 +14,8 @@
 
 - [x] **0.1** Fix config key mismatch (CHROMADB_HOST vs CHROMA_HOST) in `.env.example` — already fixed, both use `CHROMA_HOST`
 - [x] **0.2** `.env` created with Groq API key, added `OPENAI_BASE_URL` config for provider-agnostic LLM support
-- [ ] **0.3** `make dev-up` — bring up postgres/redis/chromadb via docker-compose
-- [ ] **0.4** `cd backend && alembic upgrade head` against real PostgreSQL — verify success
+- [x] **0.3** `make docker-infra-up` — postgres/redis/chromadb up and healthy
+- [x] **0.4** `alembic upgrade head` — migration applied: 3 tables (projects, project_artifacts, agent_executions) + alembic_version
 - [ ] **0.5** Start API + Celery worker, submit test idea via `POST /api/v1/projects`
 - [ ] **0.6** Fix whatever breaks during end-to-end run
 - [ ] **0.7** Verify generated code/manifest land in `storage/generated_code/` and `storage/manifests/`
