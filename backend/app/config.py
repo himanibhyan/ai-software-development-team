@@ -53,7 +53,7 @@ class Settings(BaseSettings):
     # OpenAI / LLM Provider
     OPENAI_API_KEY: str = ""
     OPENAI_BASE_URL: str = ""
-    OPENAI_MODEL: str = "gpt-4-turbo-preview"
+    OPENAI_MODEL: str = "llama-3.3-70b-versatile"
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
     OPENAI_MAX_TOKENS: int = 4096
     OPENAI_TEMPERATURE: float = 0.2
