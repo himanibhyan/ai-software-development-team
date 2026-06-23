@@ -16,7 +16,7 @@ from app.db.base import Base
 from app.db.session import get_db_session
 from app.server import app
 
-TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+TEST_DATABASE_URL = "sqlite+aiosqlite://"  # in-memory SQLite
 
 
 

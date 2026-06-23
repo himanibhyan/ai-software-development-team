@@ -22,12 +22,12 @@ class TestGetRegistry:
     def test_returns_registry(self):
         from app.graph.nodes import _get_registry
         registry_obj = MagicMock()
-        with patch("app.graph.nodes.agent_registry", registry_obj):
+        with patch("app.graph.nodes.agent_registry_module.registry", registry_obj):
             assert _get_registry() == registry_obj
 
     def test_raises_when_none(self):
         from app.graph.nodes import _get_registry
-        with patch("app.graph.nodes.agent_registry", None):
+        with patch("app.graph.nodes.agent_registry_module.registry", None):
             with pytest.raises(AppException, match="not initialized"):
                 _get_registry()
 
@@ -90,7 +90,7 @@ class TestAgentNodes:
 
     async def test_requirements_node_success(self, state_with_project, mock_registry):
         from app.graph.nodes import requirements_node
-        with patch("app.graph.nodes.agent_registry", mock_registry):
+        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
             with patch("app.graph.nodes._save_step_checkpoint"):
                 result = await requirements_node(state_with_project)
 
@@ -111,7 +111,7 @@ class TestAgentNodes:
         from app.graph.nodes import requirements_node
         mock_registry.get_agent.return_value.process.side_effect = Exception("fail")
 
-        with patch("app.graph.nodes.agent_registry", mock_registry):
+        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
             result = await requirements_node(state_with_project)
 
         assert result["status"] == "failed"
@@ -125,7 +125,7 @@ class TestAgentNodes:
         }
         state = _make_state(requirements={"title": "Req"})
 
-        with patch("app.graph.nodes.agent_registry", mock_registry):
+        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
             with patch("app.graph.nodes._save_step_checkpoint"):
                 result = await architect_node(state)
 
@@ -151,7 +151,7 @@ class TestAgentNodes:
         }
         state = _make_state(architecture={"pattern": "microservices", "overview": "Overview of the architecture with all components"})
 
-        with patch("app.graph.nodes.agent_registry", mock_registry):
+        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
             with patch("app.graph.nodes._save_step_checkpoint"):
                 result = await developer_node(state)
 
@@ -163,7 +163,7 @@ class TestAgentNodes:
         agent.process.return_value = {"source_code": {"files": []}}
         state = _make_state()
 
-        with patch("app.graph.nodes.agent_registry", mock_registry):
+        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
             with patch("app.graph.nodes._save_step_checkpoint"):
                 result = await developer_node(state)
 
@@ -187,7 +187,7 @@ class TestAgentNodes:
             review_attempts=1,
         )
 
-        with patch("app.graph.nodes.agent_registry", mock_registry):
+        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
             with patch("app.graph.nodes._save_step_checkpoint"):
                 result = await code_review_node(state)
 
@@ -214,7 +214,7 @@ class TestAgentNodes:
         }
         state = _make_state(source_code={"files": []})
 
-        with patch("app.graph.nodes.agent_registry", mock_registry):
+        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
             with patch("app.graph.nodes._save_step_checkpoint"):
                 result = await tester_node(state)
 
@@ -243,7 +243,7 @@ class TestAgentNodes:
             test_suite={"test_framework": "pytest", "test_cases": []},
         )
 
-        with patch("app.graph.nodes.agent_registry", mock_registry):
+        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
             with patch("app.graph.nodes._save_step_checkpoint"):
                 result = await documentation_node(state)
 
@@ -275,7 +275,7 @@ class TestAgentNodes:
         for node_fn in [requirements_node, architect_node, developer_node, code_review_node, tester_node, documentation_node]:
             mock_registry.reset_mock()
             state = _make_state()
-            with patch("app.graph.nodes.agent_registry", mock_registry):
+            with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
                 result = await node_fn(state)
             assert result["status"] == "failed", f"{node_fn.__name__} should return failed status"
             assert len(result["errors"]) >= 1, f"{node_fn.__name__} should include errors"

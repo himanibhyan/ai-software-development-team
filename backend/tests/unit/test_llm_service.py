@@ -59,10 +59,11 @@ class TestInitialize:
     async def test_initialize_with_api_key(self, llm):
         with patch.object(llm, "_client", None):
             with patch("app.services.llm_service.settings.OPENAI_API_KEY", "sk-test"):
-                with patch("app.services.llm_service.AsyncOpenAI") as mock_client_cls:
-                    await llm.initialize()
-                    mock_client_cls.assert_called_once_with(api_key="sk-test")
-                    assert llm._client is not None
+                with patch("app.services.llm_service.settings.OPENAI_BASE_URL", ""):
+                    with patch("app.services.llm_service.AsyncOpenAI") as mock_client_cls:
+                        await llm.initialize()
+                        mock_client_cls.assert_called_once_with(api_key="sk-test")
+                        assert llm._client is not None
 
     async def test_initialize_without_api_key(self, llm):
         with patch.object(llm, "_client", None):

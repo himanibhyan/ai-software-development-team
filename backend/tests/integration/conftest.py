@@ -1,8 +1,32 @@
 from __future__ import annotations
 
-import langchain
+from collections.abc import AsyncGenerator
 
-# Workaround for langchain 1.2.15 incompatibility with langchain-core:
-# langchain_core.globals.get_debug() tries to access langchain.debug
-# which does not exist in this version.
-langchain.debug = False
+import pytest_asyncio
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+
+from app.db.base import Base
+
+TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/ai_dev_team_test"
+
+
+@pytest_asyncio.fixture
+async def db_session() -> AsyncGenerator[AsyncSession, None]:
+    """Integration test fixture using real PostgreSQL in Docker."""
+    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    session_factory = async_sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
+    async with session_factory() as session:
+        yield session
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    await engine.dispose()
