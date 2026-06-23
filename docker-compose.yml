@@ -1,5 +1,28 @@
 version: "3.9"
 
+# ============================================================
+# AI Software Development Team — Full Stack Deployment
+# ============================================================
+
+x-shared-env: &shared-env
+  DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/ai_dev_team
+  REDIS_URL: redis://redis:6379/0
+  CHROMA_HOST: chromadb
+  CHROMA_PORT: 8000
+  ENVIRONMENT: production
+  LOG_LEVEL: info
+  LOG_FORMAT: json
+
+x-shared-depends: &shared-depends
+  postgres:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+  chromadb:
+    condition: service_healthy
+
+# ── Services ──────────────────────────────────────────────────
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -40,9 +63,9 @@ services:
     image: chromadb/chroma:0.5.0
     container_name: ai-dev-chromadb
     environment:
-      - IS_PERSISTENT=TRUE
-      - PERSIST_DIRECTORY=/chroma/chroma-data
-      - ANONYMIZED_TELEMETRY=FALSE
+      IS_PERSISTENT: "TRUE"
+      PERSIST_DIRECTORY: /chroma/chroma-data
+      ANONYMIZED_TELEMETRY: "FALSE"
     ports:
       - "8001:8000"
     volumes:
@@ -60,29 +83,20 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-      target: development
+      target: production
     container_name: ai-dev-api
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/ai_dev_team
-      - REDIS_URL=redis://redis:6379/0
-      - CHROMA_HOST=chromadb
-      - CHROMA_PORT=8000
+      <<: *shared-env
+      CORS_ORIGINS: '["http://localhost:5173","http://localhost:3000"]'
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
-      - ./generated_projects:/app/generated_projects
+      - generated_projects:/app/generated_projects
+      - storage_data:/app/storage
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      chromadb:
-        condition: service_healthy
-    command: >
-      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug"
+      <<: *shared-depends
     restart: unless-stopped
     networks:
       - ai-dev-network
@@ -91,33 +105,50 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-      target: development
+      target: production
     container_name: ai-dev-worker
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/ai_dev_team
-      - REDIS_URL=redis://redis:6379/0
-      - CHROMA_HOST=chromadb
-      - CHROMA_PORT=8000
+      <<: *shared-env
     volumes:
-      - ./backend:/app
-      - ./generated_projects:/app/generated_projects
+      - generated_projects:/app/generated_projects
+      - storage_data:/app/storage
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      chromadb:
-        condition: service_healthy
-    command: celery -A app.worker.celery_app worker --loglevel=info --concurrency=4
+      <<: *shared-depends
+    command: >
+      celery -A app.worker.celery_app worker
+      --loglevel=info
+      --concurrency=4
+      --max-tasks-per-child=10
+      --prefetch-multiplier=1
     restart: unless-stopped
     networks:
       - ai-dev-network
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ai-dev-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - ai-dev-network
+
+# ── Volumes ───────────────────────────────────────────────────
+
 volumes:
   postgres_data:
   chroma_data:
+  generated_projects:
+  storage_data:
+
+# ── Networks ──────────────────────────────────────────────────
 
 networks:
   ai-dev-network:

@@ -2,6 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import type { ProjectDetailResponse } from '@/lib/types';
 
+function shouldRefetch(status: string): boolean {
+  return ['running', 'pending', 'refining'].includes(status);
+}
+
 export function useProjectDetail(projectId: string | undefined) {
   return useQuery({
     queryKey: ['project', projectId],
@@ -15,8 +19,7 @@ export function useProjectDetail(projectId: string | undefined) {
     refetchInterval: (query) => {
       const state = query.state.data;
       if (!state) return 2000;
-      if (state.status === 'running' || state.status === 'pending')
-        return 2000;
+      if (shouldRefetch(state.status)) return 2000;
       return false;
     },
   });

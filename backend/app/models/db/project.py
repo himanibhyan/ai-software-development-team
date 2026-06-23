@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
-from sqlalchemy import DateTime, Enum, String, Text, func
+from sqlalchemy import DateTime, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID as UUIDType
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -22,7 +22,7 @@ class ProjectModel(Base, UUIDMixin, TimestampMixin):
     idea: Mapped[str] = mapped_column(Text, nullable=False)
     constraints: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     status: Mapped[ProjectStatus] = mapped_column(
-        Enum(ProjectStatus, name="project_status", create_constraint=True),
+        String(50),
         default=ProjectStatus.PENDING,
         nullable=False,
         index=True,

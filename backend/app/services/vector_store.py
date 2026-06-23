@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from typing import Any, Optional
 
 import chromadb
@@ -26,12 +27,18 @@ class VectorStoreService:
     async def initialize(self) -> None:
         """Initialize ChromaDB client and embedding function."""
         try:
-            self._client = chromadb.HttpClient(
-                host=settings.CHROMA_HOST,
-                port=settings.CHROMA_PORT,
-                settings=ChromaSettings(
-                    anonymized_telemetry=False,
+            self._client = await asyncio.wait_for(
+                asyncio.get_event_loop().run_in_executor(
+                    None,
+                    lambda: chromadb.HttpClient(
+                        host=settings.CHROMA_HOST,
+                        port=settings.CHROMA_PORT,
+                        settings=ChromaSettings(
+                            anonymized_telemetry=False,
+                        ),
+                    ),
                 ),
+                timeout=3.0,
             )
 
             self._embedding_fn = embedding_functions.OpenAIEmbeddingFunction(

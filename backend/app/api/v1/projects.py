@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.core.logging import get_logger
 from app.db.repositories.artifact_repo import ArtifactRepository
 from app.db.repositories.project_repo import ProjectRepository
@@ -22,6 +23,29 @@ from app.worker.tasks import run_generation_pipeline
 logger = get_logger(__name__)
 
 router = APIRouter()
+
+
+def _dispatch_pipeline(idea: str, project_id: str, constraints: dict | None = None) -> None:
+    """Dispatch the generation pipeline - via Celery if available, otherwise skip."""
+    if settings.DISABLE_CELERY:
+        logger.warning(
+            "celery_disabled_skipping_pipeline",
+            project_id=project_id,
+            idea_preview=idea[:100],
+        )
+        return
+    try:
+        run_generation_pipeline.delay(
+            idea=idea,
+            project_id=project_id,
+            constraints=constraints,
+        )
+    except Exception as e:
+        logger.error(
+            "celery_dispatch_failed",
+            project_id=project_id,
+            error=str(e),
+        )
 
 
 @router.post("", response_model=CreateProjectResponse, status_code=status.HTTP_201_CREATED)
@@ -47,8 +71,8 @@ async def create_project(
         idea_preview=request.idea[:100],
     )
 
-    # Dispatch async pipeline via Celery worker
-    run_generation_pipeline.delay(
+    # Dispatch async pipeline via Celery worker (or skip if disabled)
+    _dispatch_pipeline(
         idea=request.idea,
         project_id=str(project.id),
         constraints=request.constraints,
@@ -164,8 +188,8 @@ async def refine_project(
         feedback_preview=request.feedback[:100],
     )
 
-    # Re-dispatch pipeline with original idea + feedback
-    run_generation_pipeline.delay(
+    # Re-dispatch pipeline with original idea + feedback (or skip if disabled)
+    _dispatch_pipeline(
         idea=f"{project.idea}\n\nFeedback: {request.feedback}",
         project_id=str(project_id),
         constraints=project.constraints,

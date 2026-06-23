@@ -13,6 +13,7 @@ from app.core.logging import get_logger, setup_logging
 from app.core.middleware import register_middleware
 from app.db.base import Base
 from app.db.session import engine
+from app.models.db import ProjectModel, ArtifactModel, ExecutionModel  # noqa: F401 — register all models
 from app.agents.registry import init_registry
 from app.services.llm_service import llm_service
 from app.services.vector_store import vector_store

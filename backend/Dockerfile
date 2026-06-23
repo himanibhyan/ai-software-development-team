@@ -1,5 +1,5 @@
 # ============================================================
-# Stage 1: Base - shared dependencies
+# Stage 1: Base — shared system deps & Python config
 # ============================================================
 FROM python:3.12-slim AS base
 
@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # ============================================================
-# Stage 2: Development - hot-reload, all deps
+# Stage 2: Development — hot-reload, all deps + dev tools
 # ============================================================
 FROM base AS development
 
@@ -26,8 +26,10 @@ COPY . .
 
 EXPOSE 8000
 
+CMD ["uvicorn", "app.server:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
+
 # ============================================================
-# Stage 3: Production - optimized, no dev deps
+# Stage 3: Production — slim image, prod deps only, non-root user
 # ============================================================
 FROM base AS production
 
@@ -44,4 +46,7 @@ USER app
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+HEALTHCHECK --interval=15s --timeout=5s --retries=3 \
+  CMD curl --fail http://localhost:8000/health || exit 1
+
+CMD ["uvicorn", "app.server:app", "--host", "0.0.0.0", "--port", "8000"]

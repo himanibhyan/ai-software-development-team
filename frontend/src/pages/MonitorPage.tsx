@@ -13,7 +13,7 @@ import {
   Clock,
   Eye,
 } from 'lucide-react';
-import { AGENT_LABELS, AGENT_ORDER } from '@/lib/types';
+import { AGENT_LABELS, AGENT_ORDER, AGENT_TO_FIELD } from '@/lib/types';
 
 const statusBadge = (status: string) => {
   switch (status) {
@@ -109,7 +109,8 @@ export default function MonitorPage() {
       <div className="grid gap-4 md:grid-cols-3">
         {AGENT_ORDER.map((agent) => {
           const label = AGENT_LABELS[agent];
-          const generated = detail[agent as keyof typeof detail] != null;
+          const field = AGENT_TO_FIELD[agent];
+          const generated = detail[field] != null;
           const Icon = generated ? CheckCircle2 : isActive ? Loader2 : Clock;
 
           return (

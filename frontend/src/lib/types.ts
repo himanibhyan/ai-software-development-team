@@ -98,3 +98,14 @@ export const STATUS_ORDER: Record<ProjectStatus, number> = {
   completed: 2,
   failed: 2,
 };
+
+/** Maps AgentType to the corresponding key in ProjectDetailResponse. */
+export const AGENT_TO_FIELD: Record<AgentType, keyof ProjectDetailResponse> = {
+  requirements: 'requirements',
+  architect: 'architecture',
+  developer: 'source_code',
+  tester: 'test_suite',
+  code_review: 'review_report',
+  documentation: 'documentation',
+  orchestrator: 'id',
+};

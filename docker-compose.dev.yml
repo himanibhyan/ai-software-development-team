@@ -14,18 +14,29 @@ services:
       - "8001:8000"
 
   api:
+    build:
+      target: development
+    environment:
+      ENVIRONMENT: development
+      LOG_LEVEL: DEBUG
+      LOG_FORMAT: console
     ports:
       - "8000:8000"
-    environment:
-      - DEBUG=true
-      - LOG_LEVEL=DEBUG
-      - LOG_FORMAT=console
+    volumes:
+      - ./backend:/app
 
   worker:
+    build:
+      target: development
     environment:
-      - DEBUG=true
-      - LOG_LEVEL=DEBUG
-      - LOG_FORMAT=console
+      ENVIRONMENT: development
+      LOG_LEVEL: DEBUG
+      LOG_FORMAT: console
+    volumes:
+      - ./backend:/app
 
-  # Local development only: run API outside Docker
-  # Use: docker compose -f docker-compose.yml -f docker-compose.dev.yml up postgres redis chromadb
+  frontend:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"

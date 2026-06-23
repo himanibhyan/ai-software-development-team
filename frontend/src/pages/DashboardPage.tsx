@@ -58,9 +58,7 @@ export default function DashboardPage() {
             />
             {mutation.isError && (
               <p className="text-sm text-destructive mt-2">
-                {(mutation.error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-                  mutation.error?.message ||
-                  'Failed to create project'}
+                {mutation.error?.message || 'Failed to create project'}
               </p>
             )}
             {mutation.data && (

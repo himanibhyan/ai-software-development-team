@@ -35,8 +35,9 @@ class Settings(BaseSettings):
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 10
 
-    # Redis
+    # Redis / Celery
     REDIS_URL: str = "redis://localhost:6379/0"
+    DISABLE_CELERY: bool = False
 
     # ChromaDB
     CHROMA_HOST: str = "localhost"
