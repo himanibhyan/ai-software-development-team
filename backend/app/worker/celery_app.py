@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from celery import Celery
+import asyncio
+
+from celery import Celery, signals
 
 from app.config import settings
 
@@ -10,6 +12,17 @@ celery_app = Celery(
     backend=settings.REDIS_URL,
     include=["app.worker.tasks"],
 )
+
+@signals.worker_process_init.connect
+def init_worker_process(**kwargs):
+    """Initialize LLM service and agent registry once per worker process."""
+    from app.agents.registry import init_registry
+    from app.services.llm_service import llm_service
+
+    asyncio.run(llm_service.initialize())
+    if llm_service.is_available:
+        init_registry(llm_service)
+
 
 celery_app.conf.update(
     task_serializer="json",

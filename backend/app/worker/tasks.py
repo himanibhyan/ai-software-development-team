@@ -42,8 +42,9 @@ def run_generation_pipeline(
     )
 
     try:
-        # Initialize registry if needed (runs in worker process)
+        # Initialize registry if needed (fallback for solo pool / direct task dispatch)
         if not hasattr(run_generation_pipeline, "_registry_initialized"):
+            asyncio.run(llm_service.initialize())
             if llm_service.is_available:
                 init_registry(llm_service)
                 run_generation_pipeline._registry_initialized = True
