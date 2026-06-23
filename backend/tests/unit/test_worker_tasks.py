@@ -404,3 +404,72 @@ class TestAsyncBridgeSafety:
                 idea="test", project_id=str(uuid4())
             )
             assert result["status"] == "completed"
+
+
+class TestLlmInitialization:
+    """Verify LLM initialization path (lines 48-49)."""
+
+    def setup_method(self):
+        _make_request_id()
+
+    def teardown_method(self):
+        _pop_request()
+
+    @patch("app.worker.tasks.init_registry")
+    @patch("app.worker.tasks.llm_service")
+    @patch("app.worker.tasks.get_pipeline")
+    @patch("app.worker.tasks.create_initial_state")
+    def test_initializes_llm_and_registry_when_available(
+        self,
+        mock_create_state,
+        mock_get_pipeline,
+        mock_llm,
+        mock_init_registry,
+    ):
+        if hasattr(run_generation_pipeline, "_registry_initialized"):
+            del run_generation_pipeline._registry_initialized
+
+        mock_create_state.return_value = _dummy_state()
+        mock_llm.is_available = True
+        mock_llm.initialize = AsyncMock()
+
+        mock_pipeline = MagicMock()
+        mock_pipeline.ainvoke = AsyncMock(
+            return_value=_final_state(status="completed", revision=1)
+        )
+        mock_get_pipeline.return_value = mock_pipeline
+
+        result = run_generation_pipeline.run(
+            idea="test", project_id=str(uuid4())
+        )
+
+        mock_llm.initialize.assert_awaited_once()
+        mock_init_registry.assert_called_once_with(mock_llm)
+        assert result["status"] == "completed"
+
+    @patch("app.worker.tasks.llm_service")
+    @patch("app.worker.tasks.get_pipeline")
+    @patch("app.worker.tasks.create_initial_state")
+    def test_skips_initialization_when_already_initialized(
+        self,
+        mock_create_state,
+        mock_get_pipeline,
+        mock_llm,
+    ):
+        run_generation_pipeline._registry_initialized = True
+
+        mock_create_state.return_value = _dummy_state()
+        mock_llm.is_available = True
+
+        mock_pipeline = MagicMock()
+        mock_pipeline.ainvoke = AsyncMock(
+            return_value=_final_state(status="completed", revision=1)
+        )
+        mock_get_pipeline.return_value = mock_pipeline
+
+        result = run_generation_pipeline.run(
+            idea="test", project_id=str(uuid4())
+        )
+
+        mock_llm.initialize.assert_not_called()
+        assert result["status"] == "completed"

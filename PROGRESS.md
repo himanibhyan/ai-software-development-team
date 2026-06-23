@@ -31,10 +31,16 @@
 
 ## Phase 1 — Make test suite trustworthy
 
-- [ ] **1.1** Switch integration/API tests to run against real PostgreSQL (testcontainers or docker-compose test service)
-- [ ] **1.2** Fix passlib + bcrypt incompatibility on Python 3.13
-- [ ] **1.3** Add at least one true end-to-end test (API → Celery → LangGraph → DB → disk)
-- [ ] **1.4** Push coverage from 78% toward 80%+ (focus: server.py, middleware.py, session.py, tasks.py, projects.py)
+- [x] **1.1** Switch integration/API tests to run against real PostgreSQL (docker-compose test service)
+- [x] **1.2** Fix passlib + bcrypt incompatibility on Python 3.13
+- [x] **1.3** Add at least one true end-to-end test (API → Celery → LangGraph → DB → disk)
+- [x] **1.4** Push coverage from 79% to 81% (focus: server.py, middleware.py, session.py, tasks.py, projects.py)
+    - Added `tests/unit/test_session.py` — get_db_session rollback/commit paths (session.py 47%→100%)
+    - Added `tests/unit/test_middleware.py` — middleware dispatch via TestClient (middleware.py 58%→100%)
+    - Added `tests/unit/test_server.py` — health check + exception handler (server.py 57%→62%)
+    - Added LLM init path test to `test_worker_tasks.py` (tasks.py 93%→100%)
+    - Fixed E2E test `_clean_storage` fixture: duplicate path entries caused `shutil.rmtree` destroying subdirs
+    - Overall: 79%→81% (432→409 missing), 293→301 tests
 
 ---
 

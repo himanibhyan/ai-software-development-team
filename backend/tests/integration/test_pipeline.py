@@ -90,7 +90,7 @@ class TestGenerationPipelineInvoke:
 
     @pytest.fixture(autouse=True)
     def _patch_registry(self, mock_agent_registry):
-        with patch("app.graph.nodes.agent_registry", mock_agent_registry):
+        with patch("app.graph.nodes.agent_registry_module.registry", mock_agent_registry):
             yield
 
     async def _ainvoke(self, pipeline, state):
