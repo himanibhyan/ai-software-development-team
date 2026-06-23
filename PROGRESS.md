@@ -12,8 +12,8 @@
 
 ## Phase 0 — Get it running for real
 
-- [ ] **0.1** Fix config key mismatch (CHROMADB_HOST vs CHROMA_HOST) in `.env.example`
-- [ ] **0.2** `cp .env.example .env` and fill in OPENAI_API_KEY, DATABASE_URL, REDIS_URL, CHROMA_HOST
+- [x] **0.1** Fix config key mismatch (CHROMADB_HOST vs CHROMA_HOST) in `.env.example` — already fixed, both use `CHROMA_HOST`
+- [x] **0.2** `.env` created with Groq API key, added `OPENAI_BASE_URL` config for provider-agnostic LLM support
 - [ ] **0.3** `make dev-up` — bring up postgres/redis/chromadb via docker-compose
 - [ ] **0.4** `cd backend && alembic upgrade head` against real PostgreSQL — verify success
 - [ ] **0.5** Start API + Celery worker, submit test idea via `POST /api/v1/projects`

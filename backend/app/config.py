@@ -50,8 +50,9 @@ class Settings(BaseSettings):
     def chroma_url(self) -> str:
         return f"http://{self.CHROMA_HOST}:{self.CHROMA_PORT}"
 
-    # OpenAI
+    # OpenAI / LLM Provider
     OPENAI_API_KEY: str = ""
+    OPENAI_BASE_URL: str = ""
     OPENAI_MODEL: str = "gpt-4-turbo-preview"
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
     OPENAI_MAX_TOKENS: int = 4096

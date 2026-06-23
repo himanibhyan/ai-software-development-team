@@ -23,11 +23,15 @@ class LLMService:
         self._client: Optional[AsyncOpenAI] = None
 
     async def initialize(self) -> None:
-        """Initialize the OpenAI client."""
+        """Initialize the OpenAI-compatible client."""
         if not settings.OPENAI_API_KEY:
             logger.warning("openai_api_key_not_configured")
             return
-        self._client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        client_kwargs = {"api_key": settings.OPENAI_API_KEY}
+        if settings.OPENAI_BASE_URL:
+            client_kwargs["base_url"] = settings.OPENAI_BASE_URL
+            logger.info("using_custom_base_url", base_url=settings.OPENAI_BASE_URL)
+        self._client = AsyncOpenAI(**client_kwargs)
         logger.info("llm_service_initialized", model=settings.OPENAI_MODEL)
 
     @property
