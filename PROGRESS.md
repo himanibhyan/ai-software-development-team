@@ -170,7 +170,13 @@
     - Merged to main (89ee549)
     - Branch protection configured: requires review, CI status checks pass
     - Note: repo owner can bypass; enforcement applies to other contributors
-- [ ] **7.3** Replace placeholder secrets (SECRET_KEY, API_KEY)
+- [x] **7.3** Replace placeholder secrets (SECRET_KEY, API_KEY)
+    - Generated random 48-char SECRET_KEY and 32-char API_KEY via `secrets.token_urlsafe()`
+    - Updated `.env` and `backend/.env` with new values (untracked by git)
+    - Updated `.env.example` with empty values + generation instructions
+    - Updated Grafana admin password in `docker-compose.yml`
+    - `.env.production.template` already properly had empty values
+    - Note: `.env` files are in `.gitignore` — no secrets committed
 - [ ] **7.4** Consolidate historical report files into docs/history/
 - [ ] **7.5** Update README.md with current setup, auth, test suite, CI instructions
 - [ ] **7.6** Tag v1.0.0 release
