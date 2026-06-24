@@ -88,8 +88,17 @@
     - Returns 429 with JSON body when limit exceeded
     - Skipped when `settings.ENVIRONMENT == "test"` (set in conftest.py to protect other tests)
     - 6 new tests covering: under-limit passes, 429 on exceed, headers present, window reset, test-env skip, zero-remaining
-- [ ] **3.3** Add production Dockerfile target / reverse proxy story
-- [ ] **3.4** Add secrets-management story beyond plain .env
+- [x] **3.3** Add production Dockerfile target / reverse proxy story
+    - Backend Dockerfile production CMD switched to gunicorn+uvicorn workers
+    - `docker/nginx/api.conf` — production nginx reverse proxy with SSL, rate limiting (30r/s), security headers
+    - `docker/nginx/Dockerfile` — minimal nginx image for the reverse proxy
+    - `docker-compose.prod.yml` — overlay that adds reverse-proxy service and un-exposes API port
+    - `Makefile` — `ssl-cert`, `prod-*` targets for full production stack
+- [x] **3.4** Add secrets-management story beyond plain .env
+    - `config.py`: added `DOCKER_SECRET_MAP` + `_load_docker_secrets()` — reads from `/run/secrets/<name>` with fallback to `.env` and env vars
+    - `.env.production.template` — clean template with no real secrets, documents Docker secret alternative
+    - `docker-compose.secrets.yml` — overlay showing how to mount Docker secrets for api + worker services
+    - 9 new tests covering: skipped dir, override, whitespace stripping, non-secret fields, key coverage, model_post_init hook
 
 ---
 

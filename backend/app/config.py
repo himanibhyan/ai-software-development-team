@@ -6,6 +6,15 @@ from typing import List, Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Map Docker secret filenames (lowercase) to Settings field names
+DOCKER_SECRET_MAP: dict[str, str] = {
+    "openai_api_key": "OPENAI_API_KEY",
+    "secret_key": "SECRET_KEY",
+    "api_key": "API_KEY",
+    "database_url": "DATABASE_URL",
+    "github_token": "GITHUB_TOKEN",
+}
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -14,6 +23,29 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore",
     )
+
+    def model_post_init(self, __context: object) -> None:
+        """Override secrets from Docker secrets (``/run/secrets/<name>``) if present.
+
+        Docker secrets take precedence over ``.env`` file values.
+        This enables production deployments without baking secrets into files.
+        """
+        self._load_docker_secrets()
+
+    def _load_docker_secrets(self, secrets_dir: Path | None = None) -> None:
+        """Load secrets from Docker secrets directory.
+
+        Pass a custom *secrets_dir* in tests to avoid depending on
+        ``/run/secrets`` existing.
+        """
+        secrets_dir = secrets_dir or Path("/run/secrets")
+        if not secrets_dir.is_dir():
+            return
+        for secret_name, field_name in DOCKER_SECRET_MAP.items():
+            secret_path = secrets_dir / secret_name
+            if secret_path.is_file():
+                value = secret_path.read_text().strip()
+                object.__setattr__(self, field_name, value)
 
     # Application
     APP_NAME: str = "AI Software Development Team"
