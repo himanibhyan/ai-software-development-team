@@ -81,8 +81,13 @@
 
 ## Phase 3 — Security and production hardening
 
-- [ ] **3.1** Wire existing JWT/API-key dependencies into middleware protecting project routes
-- [ ] **3.2** Implement rate-limiting middleware using existing RateLimitException and RATE_LIMIT_* settings
+- [x] **3.1** Wire existing JWT/API-key dependencies into middleware protecting project routes
+- [x] **3.2** Implement rate-limiting middleware using existing RateLimitException and RATE_LIMIT_* settings
+    - Added `RateLimitMiddleware` to `app/core/middleware.py`: in-memory sliding-window per-IP rate limiter
+    - Sends `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` headers
+    - Returns 429 with JSON body when limit exceeded
+    - Skipped when `settings.ENVIRONMENT == "test"` (set in conftest.py to protect other tests)
+    - 6 new tests covering: under-limit passes, 429 on exceed, headers present, window reset, test-env skip, zero-remaining
 - [ ] **3.3** Add production Dockerfile target / reverse proxy story
 - [ ] **3.4** Add secrets-management story beyond plain .env
 

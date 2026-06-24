@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.deps import verify_auth
 from app.config import settings
 from app.core.logging import get_logger
 from app.db.repositories.artifact_repo import ArtifactRepository
@@ -22,7 +23,7 @@ from app.worker.tasks import run_generation_pipeline
 
 logger = get_logger(__name__)
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(verify_auth)])
 
 
 def _dispatch_pipeline(idea: str, project_id: str, constraints: dict | None = None) -> None:

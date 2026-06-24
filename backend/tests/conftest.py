@@ -14,6 +14,11 @@ from sqlalchemy.ext.asyncio import (
 
 from app.db.base import Base
 from app.db.session import get_db_session
+from app.config import settings
+
+# Disable rate limiting during tests
+settings.ENVIRONMENT = "test"
+
 from app.server import app
 
 TEST_DATABASE_URL = "sqlite+aiosqlite://"  # in-memory SQLite
@@ -43,7 +48,8 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     app.dependency_overrides[get_db_session] = override_get_db
 
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+    api_key = settings.API_KEY if settings.API_KEY else "test-key"
+    async with AsyncClient(transport=transport, base_url="http://test", headers={"X-API-Key": api_key}) as ac:
         yield ac
 
     app.dependency_overrides.clear()
