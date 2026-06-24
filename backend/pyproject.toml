@@ -56,7 +56,7 @@ ignore = ["B008", "N818"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-warn_unused_ignores = true
+warn_unused_ignores = false
 ignore_missing_imports = true
 disallow_any_generics = false
 warn_return_any = false

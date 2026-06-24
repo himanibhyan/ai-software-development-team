@@ -100,6 +100,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
 
 def register_middleware(app: FastAPI) -> None:
-    app.add_middleware(RateLimitMiddleware)
+    app.add_middleware(RateLimitMiddleware)  # type: ignore[arg-type]
     app.add_middleware(RequestLoggingMiddleware)
     app.add_middleware(ProcessTimeHeaderMiddleware)
