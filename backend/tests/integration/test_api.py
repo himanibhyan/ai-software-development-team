@@ -35,9 +35,7 @@ class TestProjectAPI:
         assert response.status_code == 422
 
     async def test_get_project_not_found(self, client: AsyncClient):
-        response = await client.get(
-            "/api/v1/projects/00000000-0000-0000-0000-000000000000"
-        )
+        response = await client.get("/api/v1/projects/00000000-0000-0000-0000-000000000000")
         assert response.status_code == 404
 
     async def test_list_projects(self, client: AsyncClient):
@@ -76,7 +74,7 @@ class TestProjectAPI:
         assert data["project_id"] == project_id
         assert data["status"] in ("pending", "running", "completed", "failed")
 
-    async def test_list_projects_pagination(self, client: AsyncClient, sample_idea: str):
+    async def test_list_projects_pagination(self, client: AsyncClient, _sample_idea: str):
         resp = await client.get("/api/v1/projects?page=1&page_size=10")
         assert resp.status_code == 200
         data = resp.json()
@@ -84,7 +82,5 @@ class TestProjectAPI:
         assert data["page_size"] == 10
 
     async def test_delete_project_not_found(self, client: AsyncClient):
-        response = await client.delete(
-            "/api/v1/projects/00000000-0000-0000-0000-000000000000"
-        )
+        response = await client.delete("/api/v1/projects/00000000-0000-0000-0000-000000000000")
         assert response.status_code == 404

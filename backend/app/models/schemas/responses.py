@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class ProjectSummaryResponse(BaseModel):
@@ -21,17 +21,17 @@ class ProjectSummaryResponse(BaseModel):
 class ProjectDetailResponse(BaseModel):
     id: UUID
     idea: str
-    constraints: Optional[dict[str, Any]] = None
+    constraints: dict[str, Any] | None = None
     status: str
-    requirements: Optional[dict[str, Any]] = None
-    architecture: Optional[dict[str, Any]] = None
-    source_code: Optional[dict[str, Any]] = None
-    test_suite: Optional[dict[str, Any]] = None
-    documentation: Optional[dict[str, Any]] = None
-    review_report: Optional[dict[str, Any]] = None
+    requirements: dict[str, Any] | None = None
+    architecture: dict[str, Any] | None = None
+    source_code: dict[str, Any] | None = None
+    test_suite: dict[str, Any] | None = None
+    documentation: dict[str, Any] | None = None
+    review_report: dict[str, Any] | None = None
     created_at: datetime
     updated_at: datetime
-    completed_at: Optional[datetime] = None
+    completed_at: datetime | None = None
 
 
 class PaginatedResponse(BaseModel):
@@ -49,7 +49,7 @@ class AgentStatusResponse(BaseModel):
     duration_ms: int = 0
     input_tokens: int = 0
     output_tokens: int = 0
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class CreateProjectResponse(BaseModel):
@@ -61,4 +61,4 @@ class CreateProjectResponse(BaseModel):
 class ErrorResponse(BaseModel):
     detail: str
     status_code: int
-    errors: Optional[list[dict[str, Any]]] = None
+    errors: list[dict[str, Any]] | None = None

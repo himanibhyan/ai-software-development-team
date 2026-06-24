@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Optional
+from typing import Any
 
 import chromadb
 from chromadb.config import Settings as ChromaSettings
@@ -21,8 +21,8 @@ class VectorStoreService:
     """
 
     def __init__(self) -> None:
-        self._client: Optional[chromadb.Client] = None
-        self._embedding_fn: Optional[embedding_functions.OpenAIEmbeddingFunction] = None
+        self._client: chromadb.Client | None = None
+        self._embedding_fn: embedding_functions.OpenAIEmbeddingFunction | None = None
 
     async def initialize(self) -> None:
         """Initialize ChromaDB client and embedding function."""
@@ -76,7 +76,7 @@ class VectorStoreService:
         collection_name: str,
         document_id: str,
         text: str,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> bool:
         """Store an artifact chunk in the vector store."""
         if not self._client:
@@ -100,7 +100,7 @@ class VectorStoreService:
         collection_name: str,
         query: str,
         n_results: int = 5,
-        filter_metadata: Optional[dict[str, Any]] = None,
+        filter_metadata: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         """Search for similar documents in the vector store."""
         if not self._client:
@@ -117,12 +117,14 @@ class VectorStoreService:
 
             documents = []
             for i in range(len(results["ids"][0])):
-                documents.append({
-                    "id": results["ids"][0][i],
-                    "text": results["documents"][0][i],
-                    "metadata": results["metadatas"][0][i] if results["metadatas"] else {},
-                    "distance": results["distances"][0][i] if results["distances"] else 0.0,
-                })
+                documents.append(
+                    {
+                        "id": results["ids"][0][i],
+                        "text": results["documents"][0][i],
+                        "metadata": results["metadatas"][0][i] if results["metadatas"] else {},
+                        "distance": results["distances"][0][i] if results["distances"] else 0.0,
+                    }
+                )
             return documents
         except Exception as e:
             logger.error("chromadb_search_failed", error=str(e))

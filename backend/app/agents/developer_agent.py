@@ -110,11 +110,24 @@ class DeveloperAgent(BaseAgent):
                 parts = imp.split(".")
                 if len(parts) > 1:
                     candidate = parts[0]
-                    if candidate != f.path.split("/")[-1].replace(".py", "") and candidate not in ("os", "sys", "json", "re", "datetime", "typing", "abc", "uuid", "pathlib", "collections"):
-                        if not any(
-                            candidate in other.path for other in output.files
-                        ):
-                            continue
+                    if (
+                        candidate != f.path.split("/")[-1].replace(".py", "")
+                        and candidate
+                        not in (
+                            "os",
+                            "sys",
+                            "json",
+                            "re",
+                            "datetime",
+                            "typing",
+                            "abc",
+                            "uuid",
+                            "pathlib",
+                            "collections",
+                        )
+                        and not any(candidate in other.path for other in output.files)
+                    ):
+                        continue
 
         if errors:
             error_summary = "\n".join(f"  - {e}" for e in errors)
@@ -123,9 +136,7 @@ class DeveloperAgent(BaseAgent):
                 error_count=len(errors),
                 file_count=len(output.files),
             )
-            raise ValueError(
-                f"Developer validation failed with {len(errors)} issue(s):\n{error_summary}"
-            )
+            raise ValueError(f"Developer validation failed with {len(errors)} issue(s):\n{error_summary}")
 
         return output
 
@@ -143,9 +154,7 @@ class DeveloperAgent(BaseAgent):
             "revision": state["revision"] + 1,
         }
         if token_usage:
-            updates["token_usage"] = [
-                {"agent": self.agent_type.value, **token_usage}
-            ]
+            updates["token_usage"] = [{"agent": self.agent_type.value, **token_usage}]
         return updates
 
     def _sanitize_output(self, output: ProjectTree) -> ProjectTree:

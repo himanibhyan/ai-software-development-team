@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from openai import AsyncOpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -20,7 +20,7 @@ class LLMService:
     """
 
     def __init__(self) -> None:
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: AsyncOpenAI | None = None
 
     async def initialize(self) -> None:
         """Initialize the OpenAI-compatible client."""
@@ -42,9 +42,9 @@ class LLMService:
         self,
         system_prompt: str,
         user_prompt: str,
-        response_model: Optional[type] = None,
-        temperature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
+        response_model: type | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
     ) -> tuple[Any, dict[str, int]]:
         """Generate a response from the LLM.
 
@@ -93,15 +93,13 @@ class LLMService:
         content = response.choices[0].message.content or ""
 
         if response_model is not None:
-            import json
-
             try:
                 parsed = response_model.model_validate_json(content)
             except Exception as e:
                 raise LLMException(
                     f"Failed to parse LLM response into {response_model.__name__}: {e}",
                     details={"raw_content": content[:500]},
-                )
+                ) from e
         else:
             parsed = content
 

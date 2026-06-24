@@ -3,10 +3,9 @@ from __future__ import annotations
 import json
 import shutil
 import zipfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Optional
-from uuid import UUID
+from typing import Any
 
 from app.core.logging import get_logger
 
@@ -14,7 +13,10 @@ logger = get_logger(__name__)
 
 try:
     from app.config import settings
-    PROJECT_ROOT = Path(settings.STORAGE_ROOT) if settings.STORAGE_ROOT else Path(__file__).resolve().parent.parent.parent.parent
+
+    PROJECT_ROOT = (
+        Path(settings.STORAGE_ROOT) if settings.STORAGE_ROOT else Path(__file__).resolve().parent.parent.parent.parent
+    )
 except (ImportError, AttributeError):
     PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 STORAGE_DIR = PROJECT_ROOT / "storage"
@@ -55,18 +57,16 @@ class StorageService:
         Checkpoints are stored as ``checkpoints/{project_id}_{timestamp}.json``
         and contain the full GraphState plus metadata.
         """
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
+        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S_%f")
         filename = f"{project_id}_{timestamp}.json"
         path = CHECKPOINTS_DIR / filename
 
         checkpoint = {
             "project_id": project_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "description": description,
             "state": {
-                k: v
-                for k, v in state.items()
-                if k not in ("agent_results", "token_usage", "errors", "warnings")
+                k: v for k, v in state.items() if k not in ("agent_results", "token_usage", "errors", "warnings")
             },
             "token_usage": state.get("token_usage", []),
             "errors": state.get("errors", []),
@@ -88,7 +88,7 @@ class StorageService:
             raise FileNotFoundError(f"Checkpoint not found: {path}")
         return json.loads(path.read_text())
 
-    def list_checkpoints(self, project_id: Optional[str] = None) -> list[Path]:
+    def list_checkpoints(self, project_id: str | None = None) -> list[Path]:
         """List all checkpoints, optionally filtered by project_id."""
         paths = sorted(CHECKPOINTS_DIR.glob("*.json"), reverse=True)
         if project_id:
@@ -103,7 +103,7 @@ class StorageService:
         Archives: checkpoints, generated_code, manifests, and the
         current project_manifest.json.
         """
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
         label = f"{name}_{timestamp}" if name else timestamp
         backup_path = BACKUPS_DIR / f"backup_{label}.zip"
 
@@ -166,11 +166,13 @@ class StorageService:
         for file_path in sorted(rev_dir.rglob("*")):
             if file_path.is_file():
                 rel_path = str(file_path.relative_to(rev_dir))
-                files.append({
-                    "path": rel_path,
-                    "content": file_path.read_text(),
-                    "language": rel_path.rsplit(".", 1)[-1] if "." in rel_path else "text",
-                })
+                files.append(
+                    {
+                        "path": rel_path,
+                        "content": file_path.read_text(),
+                        "language": rel_path.rsplit(".", 1)[-1] if "." in rel_path else "text",
+                    }
+                )
         return files
 
     # ── Manifest persistence ──────────────────────────────────────
@@ -186,7 +188,7 @@ class StorageService:
         logger.info("manifest_saved", project_id=project_id, path=str(path))
         return path
 
-    def load_manifest(self, project_id: str) -> Optional[dict[str, Any]]:
+    def load_manifest(self, project_id: str) -> dict[str, Any] | None:
         """Load a project manifest."""
         path = MANIFESTS_DIR / f"{project_id}.json"
         if not path.exists():
@@ -231,7 +233,7 @@ class StorageService:
         state: dict[str, Any],
     ) -> Path:
         """Export a complete project (all artifacts) as a ZIP file."""
-        export_name = f"project_{project_id}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+        export_name = f"project_{project_id}_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}"
         EXPORTS_DIR.mkdir(exist_ok=True)
         zip_path = EXPORTS_DIR / f"{export_name}.zip"
 
@@ -256,7 +258,7 @@ class StorageService:
     def backup_before_write(
         self,
         file_path: Path,
-    ) -> Optional[Path]:
+    ) -> Path | None:
         """If the file exists, create a versioned backup before overwriting.
 
         Backups are stored in ``/backups`` with versioned naming:
@@ -297,17 +299,14 @@ class StorageService:
         self,
         project_id: str,
         state: dict[str, Any],
-        target_dir: Optional[Path] = None,
+        target_dir: Path | None = None,
     ) -> Path:
         """Export project artifacts as a folder tree on disk.
 
         Creates a directory with subdirectories for each artifact:
         ``{target_dir}/{project_id}/requirements/``, ``architecture/``, etc.
         """
-        if target_dir is None:
-            target_dir = EXPORTS_DIR / project_id
-        else:
-            target_dir = target_dir / project_id
+        target_dir = EXPORTS_DIR / project_id if target_dir is None else target_dir / project_id
 
         target_dir.mkdir(parents=True, exist_ok=True)
 
@@ -316,9 +315,7 @@ class StorageService:
             if data:
                 artifact_dir = target_dir / artifact_key
                 artifact_dir.mkdir(exist_ok=True)
-                (artifact_dir / "data.json").write_text(
-                    json.dumps(data, indent=2, default=str)
-                )
+                (artifact_dir / "data.json").write_text(json.dumps(data, indent=2, default=str))
 
         code = state.get("source_code", {})
         files = code.get("files", []) if isinstance(code, dict) else []
@@ -363,7 +360,7 @@ class StorageService:
         # snapshot manifest
         snapshot_manifest = {
             "project_id": project_id,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "status": state.get("status", "unknown"),
             "revision": state.get("revision", 0),
             "artifacts": {
@@ -377,9 +374,7 @@ class StorageService:
                 "snapshot": str(snapshot_dir),
             },
         }
-        (snapshot_dir / "snapshot_manifest.json").write_text(
-            json.dumps(snapshot_manifest, indent=2, default=str)
-        )
+        (snapshot_dir / "snapshot_manifest.json").write_text(json.dumps(snapshot_manifest, indent=2, default=str))
 
         logger.info(
             "project_snapshot_created",
@@ -393,7 +388,7 @@ class StorageService:
     def clean_old_checkpoints(
         self,
         keep_last: int = 10,
-        project_id: Optional[str] = None,
+        project_id: str | None = None,
     ) -> int:
         """Remove old checkpoints, keeping only the most recent ``keep_last``."""
         checkpoints = self.list_checkpoints(project_id)

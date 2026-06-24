@@ -21,20 +21,25 @@ def _make_state(**overrides):
 class TestGetRegistry:
     def test_returns_registry(self):
         from app.graph.nodes import _get_registry
+
         registry_obj = MagicMock()
         with patch("app.graph.nodes.agent_registry_module.registry", registry_obj):
             assert _get_registry() == registry_obj
 
     def test_raises_when_none(self):
         from app.graph.nodes import _get_registry
-        with patch("app.graph.nodes.agent_registry_module.registry", None):
-            with pytest.raises(AppException, match="not initialized"):
-                _get_registry()
+
+        with (
+            patch("app.graph.nodes.agent_registry_module.registry", None),
+            pytest.raises(AppException, match="not initialized"),
+        ):
+            _get_registry()
 
 
 class TestErrorUpdates:
     def test_builds_error_dict(self):
         from app.graph.nodes import _error_updates
+
         state = _make_state(current_agent="developer")
         result = _error_updates(state, "development", "Something broke")
 
@@ -50,6 +55,7 @@ class TestErrorUpdates:
 class TestValidateInputNode:
     async def test_valid_input_returns_running(self):
         from app.graph.nodes import validate_input_node
+
         state = _make_state()
         result = await validate_input_node(state)
         assert result["status"] == "running"
@@ -57,6 +63,7 @@ class TestValidateInputNode:
 
     async def test_short_input_returns_failed(self):
         from app.graph.nodes import validate_input_node
+
         state = _make_state(idea="short")
         result = await validate_input_node(state)
         assert result["status"] == "failed"
@@ -64,6 +71,7 @@ class TestValidateInputNode:
 
     async def test_skips_validation_in_resume_mode(self):
         from app.graph.nodes import validate_input_node
+
         state = _make_state(resume_mode=True, idea="short")
         result = await validate_input_node(state)
         assert result["status"] == "running"
@@ -90,8 +98,11 @@ class TestAgentNodes:
 
     async def test_requirements_node_success(self, state_with_project, mock_registry):
         from app.graph.nodes import requirements_node
-        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
-            with patch("app.graph.nodes._save_step_checkpoint"):
+
+        with (
+            patch("app.graph.nodes.agent_registry_module.registry", mock_registry),
+            patch("app.graph.nodes._save_step_checkpoint"),
+        ):
                 result = await requirements_node(state_with_project)
 
         assert "requirements" in str(result)
@@ -99,6 +110,7 @@ class TestAgentNodes:
 
     async def test_requirements_node_skipped_in_resume(self, state_with_project, mock_registry):
         from app.graph.nodes import requirements_node
+
         state_with_project["resume_mode"] = True
         state_with_project["completed_steps"] = ["requirements"]
         state_with_project["requirements"] = {"title": "Existing"}
@@ -109,6 +121,7 @@ class TestAgentNodes:
 
     async def test_requirements_node_failure(self, state_with_project, mock_registry):
         from app.graph.nodes import requirements_node
+
         mock_registry.get_agent.return_value.process.side_effect = Exception("fail")
 
         with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
@@ -119,20 +132,27 @@ class TestAgentNodes:
 
     async def test_architect_node_success(self, mock_registry):
         from app.graph.nodes import architect_node
+
         agent = mock_registry.get_agent.return_value
         agent.process.return_value = {
-            "architecture": {"pattern": "microservices", "overview": "Overview of the architecture with all components"},
+            "architecture": {
+                "pattern": "microservices",
+                "overview": "Overview of the architecture with all components",
+            },
         }
         state = _make_state(requirements={"title": "Req"})
 
-        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
-            with patch("app.graph.nodes._save_step_checkpoint"):
+        with (
+            patch("app.graph.nodes.agent_registry_module.registry", mock_registry),
+            patch("app.graph.nodes._save_step_checkpoint"),
+        ):
                 result = await architect_node(state)
 
         assert result["completed_steps"] == ["architecture"]
 
     async def test_architect_node_skipped_in_resume(self, mock_registry):
         from app.graph.nodes import architect_node
+
         state = _make_state(
             resume_mode=True,
             completed_steps=["architecture"],
@@ -145,32 +165,41 @@ class TestAgentNodes:
 
     async def test_developer_node_success(self, mock_registry):
         from app.graph.nodes import developer_node
+
         agent = mock_registry.get_agent.return_value
         agent.process.return_value = {
             "source_code": {"files": [{"path": "main.py", "content": "print('hello')"}]},
         }
-        state = _make_state(architecture={"pattern": "microservices", "overview": "Overview of the architecture with all components"})
+        state = _make_state(
+            architecture={"pattern": "microservices", "overview": "Overview of the architecture with all components"}
+        )
 
-        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
-            with patch("app.graph.nodes._save_step_checkpoint"):
+        with (
+            patch("app.graph.nodes.agent_registry_module.registry", mock_registry),
+            patch("app.graph.nodes._save_step_checkpoint"),
+        ):
                 result = await developer_node(state)
 
         assert "development" in result.get("completed_steps", [])
 
     async def test_developer_node_adds_completed_steps(self, mock_registry):
         from app.graph.nodes import developer_node
+
         agent = mock_registry.get_agent.return_value
         agent.process.return_value = {"source_code": {"files": []}}
         state = _make_state()
 
-        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
-            with patch("app.graph.nodes._save_step_checkpoint"):
+        with (
+            patch("app.graph.nodes.agent_registry_module.registry", mock_registry),
+            patch("app.graph.nodes._save_step_checkpoint"),
+        ):
                 result = await developer_node(state)
 
         assert result["completed_steps"] == ["development"]
 
     async def test_code_review_node_increments_attempts(self, mock_registry):
         from app.graph.nodes import code_review_node
+
         agent = mock_registry.get_agent.return_value
         agent.process.return_value = {
             "review_report": {
@@ -187,8 +216,10 @@ class TestAgentNodes:
             review_attempts=1,
         )
 
-        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
-            with patch("app.graph.nodes._save_step_checkpoint"):
+        with (
+            patch("app.graph.nodes.agent_registry_module.registry", mock_registry),
+            patch("app.graph.nodes._save_step_checkpoint"),
+        ):
                 result = await code_review_node(state)
 
         assert result["review_attempts"] == 2
@@ -196,10 +227,18 @@ class TestAgentNodes:
 
     async def test_code_review_node_skipped_in_resume(self, mock_registry):
         from app.graph.nodes import code_review_node
+
         state = _make_state(
             resume_mode=True,
             completed_steps=["code_review"],
-            review_report={"summary": "Review summary here with enough detail", "overall_score": 8.0, "comments": [], "strengths": [], "weaknesses": [], "security_concerns": []},
+            review_report={
+                "summary": "Review summary here with enough detail",
+                "overall_score": 8.0,
+                "comments": [],
+                "strengths": [],
+                "weaknesses": [],
+                "security_concerns": [],
+            },
         )
 
         result = await code_review_node(state)
@@ -208,20 +247,24 @@ class TestAgentNodes:
 
     async def test_tester_node_success(self, mock_registry):
         from app.graph.nodes import tester_node
+
         agent = mock_registry.get_agent.return_value
         agent.process.return_value = {
             "test_suite": {"test_framework": "pytest", "test_cases": []},
         }
         state = _make_state(source_code={"files": []})
 
-        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
-            with patch("app.graph.nodes._save_step_checkpoint"):
+        with (
+            patch("app.graph.nodes.agent_registry_module.registry", mock_registry),
+            patch("app.graph.nodes._save_step_checkpoint"),
+        ):
                 result = await tester_node(state)
 
         assert result["completed_steps"] == ["testing"]
 
     async def test_tester_node_skipped_in_resume(self, mock_registry):
         from app.graph.nodes import tester_node
+
         state = _make_state(
             resume_mode=True,
             completed_steps=["testing"],
@@ -234,6 +277,7 @@ class TestAgentNodes:
 
     async def test_documentation_node_success(self, mock_registry):
         from app.graph.nodes import documentation_node
+
         agent = mock_registry.get_agent.return_value
         agent.process.return_value = {
             "documentation": {"readme": "# Project", "setup_guide": "pip install"},
@@ -243,14 +287,17 @@ class TestAgentNodes:
             test_suite={"test_framework": "pytest", "test_cases": []},
         )
 
-        with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
-            with patch("app.graph.nodes._save_step_checkpoint"):
+        with (
+            patch("app.graph.nodes.agent_registry_module.registry", mock_registry),
+            patch("app.graph.nodes._save_step_checkpoint"),
+        ):
                 result = await documentation_node(state)
 
         assert result["completed_steps"] == ["documentation"]
 
     async def test_documentation_node_skipped_in_resume(self, mock_registry):
         from app.graph.nodes import documentation_node
+
         state = _make_state(
             resume_mode=True,
             completed_steps=["documentation"],
@@ -270,9 +317,17 @@ class TestAgentNodes:
             requirements_node,
             tester_node,
         )
+
         mock_registry.get_agent.return_value.process.side_effect = Exception("boom")
 
-        for node_fn in [requirements_node, architect_node, developer_node, code_review_node, tester_node, documentation_node]:
+        for node_fn in [
+            requirements_node,
+            architect_node,
+            developer_node,
+            code_review_node,
+            tester_node,
+            documentation_node,
+        ]:
             mock_registry.reset_mock()
             state = _make_state()
             with patch("app.graph.nodes.agent_registry_module.registry", mock_registry):
@@ -284,6 +339,7 @@ class TestAgentNodes:
 class TestPersistenceNode:
     async def test_completes_pipeline(self):
         from app.graph.nodes import persistence_node
+
         state = _make_state(
             source_code={
                 "files": [
@@ -307,6 +363,7 @@ class TestPersistenceNode:
 
     async def test_no_source_code_files(self):
         from app.graph.nodes import persistence_node
+
         state = _make_state(source_code={"files": []})
 
         mock_storage = MagicMock()
@@ -318,6 +375,7 @@ class TestPersistenceNode:
 
     async def test_source_code_not_a_dict(self):
         from app.graph.nodes import persistence_node
+
         state = _make_state(source_code=None)
 
         mock_storage = MagicMock()
@@ -328,6 +386,7 @@ class TestPersistenceNode:
 
     async def test_storage_exception_is_swallowed(self):
         from app.graph.nodes import persistence_node
+
         state = _make_state(source_code={"files": [{"path": "m.py", "content": "x"}]})
 
         mock_storage = MagicMock()
@@ -339,6 +398,7 @@ class TestPersistenceNode:
 
     async def test_agent_results_contains_summary(self):
         from app.graph.nodes import persistence_node
+
         state = _make_state(
             source_code={"files": []},
             token_usage=[{"agent": "dev", "total_tokens": 50}, {"agent": "review", "total_tokens": 30}],
@@ -356,6 +416,7 @@ class TestPersistenceNode:
 class TestErrorNode:
     async def test_returns_failed_status(self):
         from app.graph.nodes import error_node
+
         state = _make_state(errors=[{"step": "test", "message": "critical failure"}])
         result = await error_node(state)
 
@@ -365,6 +426,7 @@ class TestErrorNode:
 
     async def test_increments_revision(self):
         from app.graph.nodes import error_node
+
         state = _make_state(errors=[{"step": "test", "message": "fail"}])
         result = await error_node(state)
         assert result["revision"] == state["revision"] + 1
@@ -373,6 +435,7 @@ class TestErrorNode:
 class TestSaveStepCheckpoint:
     def test_saves_checkpoint_and_log(self):
         from app.graph.nodes import _save_step_checkpoint
+
         state = _make_state(project_id=str(uuid4()))
 
         mock_storage = MagicMock()
@@ -384,6 +447,7 @@ class TestSaveStepCheckpoint:
 
     def test_swallows_exception(self):
         from app.graph.nodes import _save_step_checkpoint
+
         state = _make_state(project_id=str(uuid4()))
 
         mock_storage = MagicMock()
@@ -393,6 +457,7 @@ class TestSaveStepCheckpoint:
 
     def test_creates_valid_execution_log(self):
         from app.graph.nodes import _save_step_checkpoint
+
         pid = str(uuid4())
         state = _make_state(
             project_id=pid,

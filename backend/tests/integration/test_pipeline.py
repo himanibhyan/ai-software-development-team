@@ -8,7 +8,6 @@ from app.agents.base import BaseAgent
 from app.agents.registry import AgentRegistry
 from app.graph.pipeline import build_pipeline, get_pipeline
 from app.graph.state import create_initial_state, state_summary
-from app.services.llm_service import LLMService
 
 
 @pytest.fixture
@@ -21,28 +20,47 @@ def mock_agent_registry():
         agent.process.return_value = {result_key: result_value}
         return agent
 
-    mock_req = make_mock_agent("requirements", {
-        "functional_requirements": [{"id": "FR-01", "description": "Test FR", "category": "performance", "priority": "P0"}],
-        "non_functional_requirements": [{"id": "NFR-01", "description": "Test NFR", "category": "performance"}],
-        "user_stories": [{"id": "US-01", "description": "Test US", "priority": "P0"}],
-    })
-    mock_arch = make_mock_agent("architecture", {
-        "components": [{"name": "TestComp", "responsibility": "testing", "technologies": ["Python"]}],
-        "tech_stack": {"languages": ["Python"], "frameworks": [], "databases": [], "infrastructure": []},
-    })
-    mock_dev = make_mock_agent("source_code", {"files": [{"path": "test.py", "content": "print('hello')", "language": "python"}]})
-    mock_review = make_mock_agent("review_report", {
-        "overall_score": 8.5,
-        "strengths": ["good"],
-        "weaknesses": [],
-        "recommendations": [],
-    })
-    mock_tester = make_mock_agent("test_suite", {
-        "test_files": [{"path": "test_test.py", "content": "def test(): pass", "language": "python"}],
-    })
-    mock_docs = make_mock_agent("documentation", {
-        "sections": [{"title": "Overview", "content": "Docs", "order": 1}],
-    })
+    mock_req = make_mock_agent(
+        "requirements",
+        {
+            "functional_requirements": [
+                {"id": "FR-01", "description": "Test FR", "category": "performance", "priority": "P0"}
+            ],
+            "non_functional_requirements": [{"id": "NFR-01", "description": "Test NFR", "category": "performance"}],
+            "user_stories": [{"id": "US-01", "description": "Test US", "priority": "P0"}],
+        },
+    )
+    mock_arch = make_mock_agent(
+        "architecture",
+        {
+            "components": [{"name": "TestComp", "responsibility": "testing", "technologies": ["Python"]}],
+            "tech_stack": {"languages": ["Python"], "frameworks": [], "databases": [], "infrastructure": []},
+        },
+    )
+    mock_dev = make_mock_agent(
+        "source_code", {"files": [{"path": "test.py", "content": "print('hello')", "language": "python"}]}
+    )
+    mock_review = make_mock_agent(
+        "review_report",
+        {
+            "overall_score": 8.5,
+            "strengths": ["good"],
+            "weaknesses": [],
+            "recommendations": [],
+        },
+    )
+    mock_tester = make_mock_agent(
+        "test_suite",
+        {
+            "test_files": [{"path": "test_test.py", "content": "def test(): pass", "language": "python"}],
+        },
+    )
+    mock_docs = make_mock_agent(
+        "documentation",
+        {
+            "sections": [{"title": "Overview", "content": "Docs", "order": 1}],
+        },
+    )
 
     registry.get_agent.side_effect = lambda agent_type: {
         "requirements": mock_req,

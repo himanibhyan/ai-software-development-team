@@ -30,54 +30,76 @@ def mock_registry():
     registry = MagicMock(spec=AgentRegistry)
 
     registry.get_agent.side_effect = lambda agent_type: {
-        "requirements": _make_mock_agent("requirements", {
-            "title": "Todo App Requirements",
-            "functional_requirements": [
-                {"id": "FR-01", "description": "Add tasks", "category": "core", "priority": "P0"},
-            ],
-            "non_functional_requirements": [
-                {"id": "NFR-01", "description": "CLI app", "category": "usability"},
-            ],
-            "user_stories": [
-                {"id": "US-01", "description": "As a user, I want to add tasks so that I can track them", "priority": "P0"},
-            ],
-        }),
-        "architect": _make_mock_agent("architecture", {
-            "components": [
-                {"name": "CLI", "responsibility": "handle CLI args", "technologies": ["Python"]},
-            ],
-            "tech_stack": {"languages": ["Python"], "frameworks": [], "databases": ["JSON"], "infrastructure": []},
-        }),
-        "developer": _make_mock_agent("source_code", {
-            "files": [
-                {"path": "todo.py", "content": "print('todo app')", "language": "python"},
-            ],
-        }),
-        "code_review": _make_mock_agent("review_report", {
-            "overall_score": 8.0,
-            "strengths": ["Simple"],
-            "weaknesses": [],
-            "recommendations": ["Add tests"],
-            "summary": "Good first version",
-            "comments": [],
-            "security_concerns": [],
-        }),
-        "tester": _make_mock_agent("test_suite", {
-            "test_framework": "pytest",
-            "test_cases": [
-                {"name": "test_add", "description": "Test adding a task", "type": "unit"},
-            ],
-            "test_files": [
-                {"path": "test_todo.py", "content": "def test_add(): pass", "language": "python"},
-            ],
-            "coverage_target": 80,
-        }),
-        "documentation": _make_mock_agent("documentation", {
-            "sections": [
-                {"title": "Overview", "content": "A CLI todo app", "order": 1},
-                {"title": "Usage", "content": "python todo.py add", "order": 2},
-            ],
-        }),
+        "requirements": _make_mock_agent(
+            "requirements",
+            {
+                "title": "Todo App Requirements",
+                "functional_requirements": [
+                    {"id": "FR-01", "description": "Add tasks", "category": "core", "priority": "P0"},
+                ],
+                "non_functional_requirements": [
+                    {"id": "NFR-01", "description": "CLI app", "category": "usability"},
+                ],
+                "user_stories": [
+                    {
+                        "id": "US-01",
+                        "description": "As a user, I want to add tasks so that I can track them",
+                        "priority": "P0",
+                    },
+                ],
+            },
+        ),
+        "architect": _make_mock_agent(
+            "architecture",
+            {
+                "components": [
+                    {"name": "CLI", "responsibility": "handle CLI args", "technologies": ["Python"]},
+                ],
+                "tech_stack": {"languages": ["Python"], "frameworks": [], "databases": ["JSON"], "infrastructure": []},
+            },
+        ),
+        "developer": _make_mock_agent(
+            "source_code",
+            {
+                "files": [
+                    {"path": "todo.py", "content": "print('todo app')", "language": "python"},
+                ],
+            },
+        ),
+        "code_review": _make_mock_agent(
+            "review_report",
+            {
+                "overall_score": 8.0,
+                "strengths": ["Simple"],
+                "weaknesses": [],
+                "recommendations": ["Add tests"],
+                "summary": "Good first version",
+                "comments": [],
+                "security_concerns": [],
+            },
+        ),
+        "tester": _make_mock_agent(
+            "test_suite",
+            {
+                "test_framework": "pytest",
+                "test_cases": [
+                    {"name": "test_add", "description": "Test adding a task", "type": "unit"},
+                ],
+                "test_files": [
+                    {"path": "test_todo.py", "content": "def test_add(): pass", "language": "python"},
+                ],
+                "coverage_target": 80,
+            },
+        ),
+        "documentation": _make_mock_agent(
+            "documentation",
+            {
+                "sections": [
+                    {"title": "Overview", "content": "A CLI todo app", "order": 1},
+                    {"title": "Usage", "content": "python todo.py add", "order": 2},
+                ],
+            },
+        ),
     }.get(agent_type if isinstance(agent_type, str) else agent_type.value)
     return registry
 
@@ -93,6 +115,7 @@ def _clean_storage():
         MANIFESTS_DIR,
         STORAGE_DIR,
     )
+
     all_dirs = {STORAGE_DIR, CHECKPOINTS_DIR, GENERATED_CODE_DIR, MANIFESTS_DIR, LOGS_DIR, BACKUPS_DIR}
     for d in all_dirs:
         if d.exists():
@@ -152,9 +175,7 @@ class TestEndToEndPipeline:
         # Step 4: Verify checkpoints written to disk
         pid = str(state["project_id"])
         checkpoint_files = list(CHECKPOINTS_DIR.glob(f"{pid}_*.json"))
-        assert len(checkpoint_files) >= 1, (
-            f"No checkpoint files found for {pid} in {CHECKPOINTS_DIR}"
-        )
+        assert len(checkpoint_files) >= 1, f"No checkpoint files found for {pid} in {CHECKPOINTS_DIR}"
 
         # Step 5: Verify generated code on disk
         generated_code_dir = STORAGE_DIR / "generated_code"

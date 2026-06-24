@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from app.models.domain.enums import AgentStatus, AgentType, ArtifactType, ProjectStatus
+from app.models.domain.enums import AgentType, ArtifactType, ProjectStatus
 
 
 class TestEnums:

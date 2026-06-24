@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -23,12 +23,14 @@ def mock_chroma_client():
 
 class TestInitialize:
     async def test_success(self, vs, mock_chroma_client):
-        with patch("app.services.vector_store.chromadb.HttpClient", return_value=mock_chroma_client):
-            with patch("app.services.vector_store.embedding_functions.OpenAIEmbeddingFunction"):
-                with patch("app.services.vector_store.settings.CHROMA_COLLECTION_PROJECTS", "projects"):
-                    with patch("app.services.vector_store.settings.CHROMA_COLLECTION_TEMPLATES", "templates"):
-                        with patch("app.services.vector_store.settings.CHROMA_COLLECTION_MEMORY", "memory"):
-                            await vs.initialize()
+        with (
+            patch("app.services.vector_store.chromadb.HttpClient", return_value=mock_chroma_client),
+            patch("app.services.vector_store.embedding_functions.OpenAIEmbeddingFunction"),
+            patch("app.services.vector_store.settings.CHROMA_COLLECTION_PROJECTS", "projects"),
+            patch("app.services.vector_store.settings.CHROMA_COLLECTION_TEMPLATES", "templates"),
+            patch("app.services.vector_store.settings.CHROMA_COLLECTION_MEMORY", "memory"),
+        ):
+            await vs.initialize()
 
         assert vs._client is not None
         assert vs._embedding_fn is not None

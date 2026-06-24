@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -73,7 +72,9 @@ class TestCleanPendingSteps:
         assert pending == ["development", "code_review", "testing", "documentation"]
 
     def test_returns_empty_when_all_done(self):
-        pending = _clean_pending_steps(["requirements", "architecture", "development", "code_review", "testing", "documentation"])
+        pending = _clean_pending_steps(
+            ["requirements", "architecture", "development", "code_review", "testing", "documentation"]
+        )
         assert pending == []
 
     def test_ignores_unknown_steps(self):
@@ -185,7 +186,14 @@ class TestResumeFromCheckpoint:
                 "documentation": None,
                 "review_report": None,
                 "completed_steps": [],
-                "pending_steps": ["requirements", "architecture", "development", "code_review", "testing", "documentation"],
+                "pending_steps": [
+                    "requirements",
+                    "architecture",
+                    "development",
+                    "code_review",
+                    "testing",
+                    "documentation",
+                ],
                 "revision": 0,
                 "review_attempts": 0,
                 "max_review_attempts": 3,

@@ -78,61 +78,90 @@ class TestValidateOutput:
             agent._validate_output(suite)
 
     def test_rejects_missing_framework(self, agent: TesterAgent):
-        suite = TestSuite(test_framework="", test_cases=[
-            TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="unit"),
-        ])
+        suite = TestSuite(
+            test_framework="",
+            test_cases=[
+                TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="unit"),
+            ],
+        )
         with pytest.raises(ValueError, match="framework must be specified"):
             agent._validate_output(suite)
 
     def test_rejects_low_coverage_target(self, agent: TesterAgent):
-        suite = TestSuite(test_framework="pytest", coverage_target=0.5, test_cases=[
-            TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="unit"),
-        ])
+        suite = TestSuite(
+            test_framework="pytest",
+            coverage_target=0.5,
+            test_cases=[
+                TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="unit"),
+            ],
+        )
         with pytest.raises(ValueError, match="Coverage target"):
             agent._validate_output(suite)
 
     def test_rejects_empty_code(self, agent: TesterAgent):
-        suite = TestSuite(test_framework="pytest", test_cases=[
-            TestCase(name="test_x", description="X", file_path="t.py", code="", type="unit"),
-        ])
+        suite = TestSuite(
+            test_framework="pytest",
+            test_cases=[
+                TestCase(name="test_x", description="X", file_path="t.py", code="", type="unit"),
+            ],
+        )
         with pytest.raises(ValueError, match="empty code"):
             agent._validate_output(suite)
 
     def test_rejects_empty_file_path(self, agent: TesterAgent):
-        suite = TestSuite(test_framework="pytest", test_cases=[
-            TestCase(name="test_x", description="X", file_path="", code="pass", type="unit"),
-        ])
+        suite = TestSuite(
+            test_framework="pytest",
+            test_cases=[
+                TestCase(name="test_x", description="X", file_path="", code="pass", type="unit"),
+            ],
+        )
         with pytest.raises(ValueError, match="no file_path"):
             agent._validate_output(suite)
 
     def test_rejects_duplicate_test_names(self, agent: TesterAgent):
-        suite = TestSuite(test_framework="pytest", test_cases=[
-            TestCase(name="test_x", description="A", file_path="t1.py", code="pass", type="unit"),
-            TestCase(name="test_x", description="B", file_path="t2.py", code="pass", type="unit"),
-        ])
+        suite = TestSuite(
+            test_framework="pytest",
+            test_cases=[
+                TestCase(name="test_x", description="A", file_path="t1.py", code="pass", type="unit"),
+                TestCase(name="test_x", description="B", file_path="t2.py", code="pass", type="unit"),
+            ],
+        )
         with pytest.raises(ValueError, match="Duplicate"):
             agent._validate_output(suite)
 
     def test_rejects_invalid_test_type(self, agent: TesterAgent):
-        suite = TestSuite(test_framework="pytest", test_cases=[
-            TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="e2e"),
-        ])
+        suite = TestSuite(
+            test_framework="pytest",
+            test_cases=[
+                TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="e2e"),
+            ],
+        )
         with pytest.raises(ValueError, match="invalid type"):
             agent._validate_output(suite)
 
     def test_accepts_valid_suite(self, agent: TesterAgent):
-        suite = TestSuite(test_framework="pytest", coverage_target=0.85, test_cases=[
-            TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="unit"),
-        ])
+        suite = TestSuite(
+            test_framework="pytest",
+            coverage_target=0.85,
+            test_cases=[
+                TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="unit"),
+            ],
+        )
         result = agent._validate_output(suite)
         assert result is suite
 
 
 class TestSanitizeOutput:
     def test_strips_whitespace(self, agent: TesterAgent):
-        suite = TestSuite(test_framework="  PYTEST  ", coverage_target=0.9, test_cases=[
-            TestCase(name="  test_x  ", description="  X  ", file_path="  t.py  ", code="  pass  ", type="  UNIT  "),
-        ])
+        suite = TestSuite(
+            test_framework="  PYTEST  ",
+            coverage_target=0.9,
+            test_cases=[
+                TestCase(
+                    name="  test_x  ", description="  X  ", file_path="  t.py  ", code="  pass  ", type="  UNIT  "
+                ),
+            ],
+        )
         result = agent._sanitize_output(suite)
         assert result.test_framework == "pytest"
         assert result.test_cases[0].name == "test_x"
@@ -140,25 +169,35 @@ class TestSanitizeOutput:
         assert result.test_cases[0].type == "unit"
 
     def test_normalizes_backslashes(self, agent: TesterAgent):
-        suite = TestSuite(test_framework="pytest", test_cases=[
-            TestCase(name="test_x", description="X", file_path="tests\\test_x.py", code="pass", type="unit"),
-        ])
+        suite = TestSuite(
+            test_framework="pytest",
+            test_cases=[
+                TestCase(name="test_x", description="X", file_path="tests\\test_x.py", code="pass", type="unit"),
+            ],
+        )
         result = agent._sanitize_output(suite)
         assert "/" in result.test_cases[0].file_path
         assert "\\" not in result.test_cases[0].file_path
 
     def test_deduplicates_by_name(self, agent: TesterAgent):
-        suite = TestSuite(test_framework="pytest", test_cases=[
-            TestCase(name="test_x", description="v1", file_path="t1.py", code="pass", type="unit"),
-            TestCase(name="test_x", description="v2", file_path="t2.py", code="pass", type="unit"),
-        ])
+        suite = TestSuite(
+            test_framework="pytest",
+            test_cases=[
+                TestCase(name="test_x", description="v1", file_path="t1.py", code="pass", type="unit"),
+                TestCase(name="test_x", description="v2", file_path="t2.py", code="pass", type="unit"),
+            ],
+        )
         result = agent._sanitize_output(suite)
         assert len(result.test_cases) == 1
 
     def test_ensures_minimum_coverage(self, agent: TesterAgent):
-        suite = TestSuite(test_framework="pytest", coverage_target=0.3, test_cases=[
-            TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="unit"),
-        ])
+        suite = TestSuite(
+            test_framework="pytest",
+            coverage_target=0.3,
+            test_cases=[
+                TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="unit"),
+            ],
+        )
         result = agent._sanitize_output(suite)
         assert result.coverage_target >= 0.8
 
@@ -166,9 +205,13 @@ class TestSanitizeOutput:
 class TestBuildStateUpdates:
     def test_includes_sanitized_output(self, agent: TesterAgent):
         state = _make_state()
-        suite = TestSuite(test_framework="  PYTEST  ", coverage_target=0.9, test_cases=[
-            TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="  UNIT  "),
-        ])
+        suite = TestSuite(
+            test_framework="  PYTEST  ",
+            coverage_target=0.9,
+            test_cases=[
+                TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="  UNIT  "),
+            ],
+        )
         updates = agent._build_state_updates(state, suite, {"prompt_tokens": 5, "completion_tokens": 3})
         test_suite = updates["test_suite"]
         assert test_suite["test_framework"] == "pytest"
@@ -176,9 +219,12 @@ class TestBuildStateUpdates:
 
     def test_includes_token_usage(self, agent: TesterAgent):
         state = _make_state()
-        suite = TestSuite(test_framework="pytest", test_cases=[
-            TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="unit"),
-        ])
+        suite = TestSuite(
+            test_framework="pytest",
+            test_cases=[
+                TestCase(name="test_x", description="X", file_path="t.py", code="pass", type="unit"),
+            ],
+        )
         updates = agent._build_state_updates(state, suite, {"prompt_tokens": 5, "completion_tokens": 3})
         assert len(updates["token_usage"]) == 1
         assert updates["token_usage"][0]["agent"] == "tester"

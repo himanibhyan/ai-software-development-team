@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -12,7 +12,7 @@ class CreateProjectRequest(BaseModel):
         max_length=10000,
         description="Natural language description of the software idea",
     )
-    constraints: Optional[dict[str, Any]] = Field(
+    constraints: dict[str, Any] | None = Field(
         None,
         description="Optional constraints (tech stack, preferences, etc.)",
     )
@@ -25,7 +25,7 @@ class RefineProjectRequest(BaseModel):
         max_length=5000,
         description="User feedback to refine the generated project",
     )
-    target_agents: Optional[list[str]] = Field(
+    target_agents: list[str] | None = Field(
         None,
         description="Specific agents to re-run (default: all)",
     )
@@ -38,7 +38,7 @@ class ExportProjectRequest(BaseModel):
         max_length=100,
         description="GitHub repository name",
     )
-    organization: Optional[str] = Field(
+    organization: str | None = Field(
         None,
         description="GitHub organization (defaults to personal account)",
     )

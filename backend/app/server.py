@@ -14,14 +14,19 @@ from app.core.middleware import register_middleware
 
 try:
     from prometheus_fastapi_instrumentator import Instrumentator
+
     HAS_PROMETHEUS = True
 except ImportError:
     Instrumentator = None  # type: ignore
     HAS_PROMETHEUS = False
+from app.agents.registry import init_registry
 from app.db.base import Base
 from app.db.session import engine
-from app.models.db import ProjectModel, ArtifactModel, ExecutionModel  # noqa: F401 — register all models
-from app.agents.registry import init_registry
+from app.models.db import (  # noqa: F401 — register all models
+    ArtifactModel,
+    ExecutionModel,
+    ProjectModel,
+)
 from app.services.llm_service import llm_service
 from app.services.vector_store import vector_store
 
@@ -29,7 +34,7 @@ logger = get_logger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: initialize and shutdown services."""
     setup_logging()
     logger.info(
@@ -57,12 +62,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Verify storage layer
     from app.services.storage_service import storage_service
+
     storage_service._ensure_dirs()
     logger.info("storage_layer_ready")
 
     # Pre-compile the pipeline
     from app.graph.pipeline import get_pipeline
-    pipeline = get_pipeline()
+
+    get_pipeline()
     logger.info("langgraph_pipeline_compiled")
 
     yield
@@ -101,7 +108,7 @@ def create_app() -> FastAPI:
 
     # Exception handler
     @app.exception_handler(AppException)
-    async def app_exception_handler(request, exc: AppException):
+    async def app_exception_handler(_request, exc: AppException):
         from fastapi.responses import JSONResponse
 
         return JSONResponse(

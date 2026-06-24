@@ -3,8 +3,8 @@ from __future__ import annotations
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from app.server import app
 from app.core.exceptions import AppException
+from app.server import app
 
 
 @pytest.mark.asyncio

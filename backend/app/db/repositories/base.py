@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.base import Base
@@ -10,7 +10,7 @@ from app.db.base import Base
 ModelType = TypeVar("ModelType", bound=Base)
 
 
-class BaseRepository(Generic[ModelType]):
+class BaseRepository[ModelType: Base]:
     def __init__(self, model: type[ModelType], session: AsyncSession) -> None:
         self.model = model
         self.session = session
@@ -22,9 +22,7 @@ class BaseRepository(Generic[ModelType]):
         return instance
 
     async def get(self, id: Any) -> ModelType | None:
-        result = await self.session.execute(
-            select(self.model).where(self.model.id == id)
-        )
+        result = await self.session.execute(select(self.model).where(self.model.id == id))
         return result.scalar_one_or_none()
 
     async def list(

@@ -12,17 +12,16 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from app.config import settings
 from app.db.base import Base
 from app.db.session import get_db_session
-from app.config import settings
 
 # Disable rate limiting during tests
 settings.ENVIRONMENT = "test"
 
-from app.server import app
+from app.server import app  # noqa: E402
 
 TEST_DATABASE_URL = "sqlite+aiosqlite://"  # in-memory SQLite
-
 
 
 @pytest_asyncio.fixture

@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
-from uuid import UUID
 
-from sqlalchemy import DateTime, String, Text, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID as UUIDType
+from sqlalchemy import DateTime, String, Text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin, UUIDMixin

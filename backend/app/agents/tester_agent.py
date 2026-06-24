@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from typing import Any
 
 from app.agents.base import BaseAgent
@@ -86,9 +85,7 @@ class TesterAgent(BaseAgent):
                 error_count=len(errors),
                 test_count=len(output.test_cases),
             )
-            raise ValueError(
-                f"Tester validation failed with {len(errors)} issue(s):\n{error_summary}"
-            )
+            raise ValueError(f"Tester validation failed with {len(errors)} issue(s):\n{error_summary}")
 
         return output
 
@@ -126,7 +123,5 @@ class TesterAgent(BaseAgent):
             "revision": state["revision"] + 1,
         }
         if token_usage:
-            updates["token_usage"] = [
-                {"agent": self.agent_type.value, **token_usage}
-            ]
+            updates["token_usage"] = [{"agent": self.agent_type.value, **token_usage}]
         return updates

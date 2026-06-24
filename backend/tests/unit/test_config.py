@@ -3,8 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import pytest
-
 from app.config import DOCKER_SECRET_MAP, Settings
 
 
@@ -55,7 +53,7 @@ class TestDockerSecrets:
     def test_model_post_init_calls_load_docker_secrets(self, monkeypatch):
         called = False
 
-        def mock_load(self, secrets_dir=None):
+        def mock_load(_self, _secrets_dir=None):
             nonlocal called
             called = True
 

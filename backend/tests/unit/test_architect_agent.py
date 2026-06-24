@@ -7,8 +7,8 @@ from app.agents.architect_agent import ArchitectAgent
 from app.graph.state import create_initial_state
 from app.models.domain.enums import AgentType
 from app.models.domain.project import (
-    APISpec,
     APIEndpoint,
+    APISpec,
     ArchitectureDoc,
     ComponentSpec,
     DatabaseDesign,
@@ -164,13 +164,21 @@ class TestArchitectureDocSchema:
             folder_structure=FolderStructure(
                 root="myproject",
                 entries=[
-                    FolderEntry(name="backend", type="directory", children=[
-                        FolderEntry(name="app", type="directory", description="Source code"),
-                        FolderEntry(name="tests", type="directory", description="Tests"),
-                    ]),
-                    FolderEntry(name="frontend", type="directory", children=[
-                        FolderEntry(name="src", type="directory"),
-                    ]),
+                    FolderEntry(
+                        name="backend",
+                        type="directory",
+                        children=[
+                            FolderEntry(name="app", type="directory", description="Source code"),
+                            FolderEntry(name="tests", type="directory", description="Tests"),
+                        ],
+                    ),
+                    FolderEntry(
+                        name="frontend",
+                        type="directory",
+                        children=[
+                            FolderEntry(name="src", type="directory"),
+                        ],
+                    ),
                     FolderEntry(name="docker-compose.yml", type="file", description="Orchestration"),
                 ],
             ),
@@ -188,7 +196,13 @@ class TestArchitectureDocSchema:
                 overview="Too few components",
                 architecture_pattern="Layered",
                 components=[
-                    ComponentSpec(name="Only", description="Just one component which is not enough", technology="Python", responsibilities=["Do things"], dependencies=[]),
+                    ComponentSpec(
+                        name="Only",
+                        description="Just one component which is not enough",
+                        technology="Python",
+                        responsibilities=["Do things"],
+                        dependencies=[],
+                    ),
                 ],
                 data_flow=[{"step": "1", "description": "Something happens"}],
                 tech_stack={"lang": "Python"},

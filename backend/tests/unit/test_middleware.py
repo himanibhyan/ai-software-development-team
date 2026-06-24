@@ -49,9 +49,11 @@ class TestMiddleware:
 class TestRateLimitMiddleware:
     @pytest.fixture(autouse=True)
     def patch_env(self):
-        with patch.object(settings, "ENVIRONMENT", "development"), \
-             patch.object(settings, "RATE_LIMIT_REQUESTS", 3), \
-             patch.object(settings, "RATE_LIMIT_WINDOW_SECONDS", 60):
+        with (
+            patch.object(settings, "ENVIRONMENT", "development"),
+            patch.object(settings, "RATE_LIMIT_REQUESTS", 3),
+            patch.object(settings, "RATE_LIMIT_WINDOW_SECONDS", 60),
+        ):
             yield
 
     async def test_under_limit_passes(self):

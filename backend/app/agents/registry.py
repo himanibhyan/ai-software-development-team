@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from typing import Union
-
 from app.agents.architect_agent import ArchitectAgent
 from app.agents.base import BaseAgent
 from app.agents.code_review_agent import CodeReviewAgent
-from app.agents.documentation_agent import DocumentationAgent
 from app.agents.developer_agent import DeveloperAgent
+from app.agents.documentation_agent import DocumentationAgent
 from app.agents.requirements_agent import RequirementsAgent
 from app.agents.tester_agent import TesterAgent
 from app.models.domain.enums import AgentType
@@ -32,7 +30,7 @@ class AgentRegistry:
         self._instances: dict[AgentType, BaseAgent] = {}
         self._llm = llm_service
 
-    def _resolve_type(self, agent_type: Union[AgentType, str]) -> AgentType:
+    def _resolve_type(self, agent_type: AgentType | str) -> AgentType:
         """Resolve an AgentType from either an enum or string value."""
         if isinstance(agent_type, AgentType):
             return agent_type
@@ -40,7 +38,7 @@ class AgentRegistry:
             return AgentType(agent_type)
         raise TypeError(f"Cannot resolve agent type: {agent_type}")
 
-    def get_agent(self, agent_type: Union[AgentType, str]) -> BaseAgent:
+    def get_agent(self, agent_type: AgentType | str) -> BaseAgent:
         """Get or create an agent instance by type.
 
         Args:
@@ -57,7 +55,7 @@ class AgentRegistry:
 
     @property
     def available_agents(self) -> list[str]:
-        return [t.value for t in self._agent_classes.keys()]
+        return [t.value for t in self._agent_classes]
 
 
 # Module-level singleton — initialized lazily when llm_service is ready

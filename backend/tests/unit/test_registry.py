@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import pytest
 
+from app.agents.architect_agent import ArchitectAgent
+from app.agents.code_review_agent import CodeReviewAgent
+from app.agents.developer_agent import DeveloperAgent
+from app.agents.documentation_agent import DocumentationAgent
 from app.agents.registry import AgentRegistry
 from app.agents.requirements_agent import RequirementsAgent
-from app.agents.architect_agent import ArchitectAgent
-from app.agents.developer_agent import DeveloperAgent
-from app.agents.code_review_agent import CodeReviewAgent
 from app.agents.tester_agent import TesterAgent
-from app.agents.documentation_agent import DocumentationAgent
 from app.models.domain.enums import AgentType
 
 

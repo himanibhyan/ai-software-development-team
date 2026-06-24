@@ -88,7 +88,7 @@ class TestArtifactBase:
             artifact_type=ArtifactType.REQUIREMENTS,
             content={},
         )
-        with pytest.raises(Exception):
+        with pytest.raises(TypeError):
             art.revision = 5
 
     def test_artifact_auto_generates_id(self):
@@ -118,13 +118,27 @@ class TestRequirementsArtifact:
                 FunctionalRequirement(id="FR-05", description="Admin can manage all users", priority="P0"),
             ],
             non_functional_requirements=[
-                NonFunctionalRequirement(id="NFR-01", description="System must respond quickly to requests", category="performance"),
-                NonFunctionalRequirement(id="NFR-02", description="System must protect user data privacy", category="security"),
-                NonFunctionalRequirement(id="NFR-03", description="System must handle increased traffic load", category="scalability"),
+                NonFunctionalRequirement(
+                    id="NFR-01", description="System must respond quickly to requests", category="performance"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-02", description="System must protect user data privacy", category="security"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-03", description="System must handle increased traffic load", category="scalability"
+                ),
             ],
             user_stories=[
-                UserStory(id="US-01", description="As a registered user, I want to log in securely so that I can access my dashboard", priority="P0"),
-                UserStory(id="US-02", description="As a system admin, I want to manage user roles so that I can control access permissions", priority="P1"),
+                UserStory(
+                    id="US-01",
+                    description="As a registered user, I want to log in securely so that I can access my dashboard",
+                    priority="P0",
+                ),
+                UserStory(
+                    id="US-02",
+                    description="As a system admin, I want to manage user roles so that I can control access permissions",
+                    priority="P1",
+                ),
             ],
             constraints=["Must use Python 3.12"],
             assumptions=["Users have internet connectivity"],
@@ -145,20 +159,44 @@ class TestRequirementsArtifact:
             purpose="Testing the artifact content type constraint",
             scope="Testing the type constraint enforcement",
             functional_requirements=[
-                FunctionalRequirement(id="FR-01", description="First functional requirement description", priority="P0"),
-                FunctionalRequirement(id="FR-02", description="Second functional requirement description", priority="P1"),
-                FunctionalRequirement(id="FR-03", description="Third functional requirement description", priority="P1"),
-                FunctionalRequirement(id="FR-04", description="Fourth functional requirement description", priority="P2"),
-                FunctionalRequirement(id="FR-05", description="Fifth functional requirement description", priority="P0"),
+                FunctionalRequirement(
+                    id="FR-01", description="First functional requirement description", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-02", description="Second functional requirement description", priority="P1"
+                ),
+                FunctionalRequirement(
+                    id="FR-03", description="Third functional requirement description", priority="P1"
+                ),
+                FunctionalRequirement(
+                    id="FR-04", description="Fourth functional requirement description", priority="P2"
+                ),
+                FunctionalRequirement(
+                    id="FR-05", description="Fifth functional requirement description", priority="P0"
+                ),
             ],
             non_functional_requirements=[
-                NonFunctionalRequirement(id="NFR-01", description="System must be reliable and available", category="reliability"),
-                NonFunctionalRequirement(id="NFR-02", description="System must be easy to use navigate", category="usability"),
-                NonFunctionalRequirement(id="NFR-03", description="System must be easy to maintain codebase", category="maintainability"),
+                NonFunctionalRequirement(
+                    id="NFR-01", description="System must be reliable and available", category="reliability"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-02", description="System must be easy to use navigate", category="usability"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-03", description="System must be easy to maintain codebase", category="maintainability"
+                ),
             ],
             user_stories=[
-                UserStory(id="US-01", description="As a regular user, I want to test the system so that I can verify it works correctly", priority="P0"),
-                UserStory(id="US-02", description="As a power user, I want to check all features so that I can confirm they are available", priority="P1"),
+                UserStory(
+                    id="US-01",
+                    description="As a regular user, I want to test the system so that I can verify it works correctly",
+                    priority="P0",
+                ),
+                UserStory(
+                    id="US-02",
+                    description="As a power user, I want to check all features so that I can confirm they are available",
+                    priority="P1",
+                ),
             ],
             constraints=["Python"],
             assumptions=["Internet access"],
@@ -179,8 +217,18 @@ class TestArchitectureArtifact:
             overview="This document describes the system architecture of the project in detail with all components listed below",
             architecture_pattern="Microservices",
             components=[
-                ComponentSpec(name="API Gateway", description="Route incoming requests to the appropriate backend services", technology="FastAPI", responsibilities=["Request routing", "Load balancing"]),
-                ComponentSpec(name="Database Layer", description="Store and retrieve persistent application data securely", technology="PostgreSQL", responsibilities=["Data storage", "Query processing"]),
+                ComponentSpec(
+                    name="API Gateway",
+                    description="Route incoming requests to the appropriate backend services",
+                    technology="FastAPI",
+                    responsibilities=["Request routing", "Load balancing"],
+                ),
+                ComponentSpec(
+                    name="Database Layer",
+                    description="Store and retrieve persistent application data securely",
+                    technology="PostgreSQL",
+                    responsibilities=["Data storage", "Query processing"],
+                ),
             ],
             data_flow=[
                 {"source": "Client", "target": "API Gateway", "protocol": "HTTPS"},
@@ -210,7 +258,9 @@ class TestCodeReviewArtifact:
             summary="Overall the code is well-structured with some minor issues",
             overall_score=8.5,
             comments=[
-                ReviewComment(file_path="main.py", line_start=1, line_end=10, severity="info", message="Good structure"),
+                ReviewComment(
+                    file_path="main.py", line_start=1, line_end=10, severity="info", message="Good structure"
+                ),
             ],
             strengths=["Clean code structure", "Good test coverage"],
             weaknesses=["Missing error handling in edge cases"],
@@ -250,8 +300,18 @@ class TestTestSuiteArtifact:
         suite = TestSuite(
             test_framework="pytest",
             test_cases=[
-                TestCase(name="test_login", description="Test login functionality", file_path="test_auth.py", code="def test_login(): pass"),
-                TestCase(name="test_logout", description="Test logout functionality", file_path="test_auth.py", code="def test_logout(): pass"),
+                TestCase(
+                    name="test_login",
+                    description="Test login functionality",
+                    file_path="test_auth.py",
+                    code="def test_login(): pass",
+                ),
+                TestCase(
+                    name="test_logout",
+                    description="Test logout functionality",
+                    file_path="test_auth.py",
+                    code="def test_logout(): pass",
+                ),
             ],
         )
         art = TestSuiteArtifact(

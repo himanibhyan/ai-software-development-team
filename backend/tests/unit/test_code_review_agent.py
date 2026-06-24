@@ -59,8 +59,12 @@ def _valid_report(**overrides) -> CodeReviewReport:
         overall_score=7.0,
         comments=[
             ReviewComment(
-                file_path="src/todo.py", line_start=1, line_end=1,
-                severity="warning", message="Use type hints", suggestion="Add types",
+                file_path="src/todo.py",
+                line_start=1,
+                line_end=1,
+                severity="warning",
+                message="Use type hints",
+                suggestion="Add types",
             ),
         ],
         strengths=["Clean code", "Good structure", "Error handling"],
@@ -87,8 +91,11 @@ class TestCodeReviewAgentProperties:
 class TestValidateOutput:
     def test_rejects_score_out_of_range(self, agent: CodeReviewAgent):
         report = CodeReviewReport.model_construct(
-            summary="test", overall_score=15.0,
-            comments=[], strengths=["A", "B", "C"], weaknesses=["X", "Y", "Z"],
+            summary="test",
+            overall_score=15.0,
+            comments=[],
+            strengths=["A", "B", "C"],
+            weaknesses=["X", "Y", "Z"],
             security_concerns=[],
         )
         with pytest.raises(ValueError, match="Score must be between"):
@@ -96,8 +103,11 @@ class TestValidateOutput:
 
     def test_rejects_negative_score(self, agent: CodeReviewAgent):
         report = CodeReviewReport.model_construct(
-            summary="test", overall_score=-1.0,
-            comments=[], strengths=["A", "B", "C"], weaknesses=["X", "Y", "Z"],
+            summary="test",
+            overall_score=-1.0,
+            comments=[],
+            strengths=["A", "B", "C"],
+            weaknesses=["X", "Y", "Z"],
             security_concerns=[],
         )
         with pytest.raises(ValueError, match="Score must be between"):
@@ -124,37 +134,77 @@ class TestValidateOutput:
             agent._validate_output(report)
 
     def test_rejects_empty_comment_file_path(self, agent: CodeReviewAgent):
-        report = _valid_report(comments=[ReviewComment(
-            file_path="", line_start=1, line_end=1, severity="info", message="msg",
-        )])
+        report = _valid_report(
+            comments=[
+                ReviewComment(
+                    file_path="",
+                    line_start=1,
+                    line_end=1,
+                    severity="info",
+                    message="msg",
+                )
+            ]
+        )
         with pytest.raises(ValueError, match="empty file_path"):
             agent._validate_output(report)
 
     def test_rejects_invalid_line_start(self, agent: CodeReviewAgent):
-        report = _valid_report(comments=[ReviewComment(
-            file_path="src/todo.py", line_start=0, line_end=1, severity="info", message="msg",
-        )])
+        report = _valid_report(
+            comments=[
+                ReviewComment(
+                    file_path="src/todo.py",
+                    line_start=0,
+                    line_end=1,
+                    severity="info",
+                    message="msg",
+                )
+            ]
+        )
         with pytest.raises(ValueError, match="invalid line_start"):
             agent._validate_output(report)
 
     def test_rejects_line_end_before_start(self, agent: CodeReviewAgent):
-        report = _valid_report(comments=[ReviewComment(
-            file_path="src/todo.py", line_start=10, line_end=5, severity="info", message="msg",
-        )])
+        report = _valid_report(
+            comments=[
+                ReviewComment(
+                    file_path="src/todo.py",
+                    line_start=10,
+                    line_end=5,
+                    severity="info",
+                    message="msg",
+                )
+            ]
+        )
         with pytest.raises(ValueError, match="line_end"):
             agent._validate_output(report)
 
     def test_rejects_invalid_severity(self, agent: CodeReviewAgent):
-        report = _valid_report(comments=[ReviewComment(
-            file_path="src/todo.py", line_start=1, line_end=1, severity="blocker", message="msg",
-        )])
+        report = _valid_report(
+            comments=[
+                ReviewComment(
+                    file_path="src/todo.py",
+                    line_start=1,
+                    line_end=1,
+                    severity="blocker",
+                    message="msg",
+                )
+            ]
+        )
         with pytest.raises(ValueError, match="invalid severity"):
             agent._validate_output(report)
 
     def test_rejects_empty_comment_message(self, agent: CodeReviewAgent):
-        report = _valid_report(comments=[ReviewComment(
-            file_path="src/todo.py", line_start=1, line_end=1, severity="info", message="",
-        )])
+        report = _valid_report(
+            comments=[
+                ReviewComment(
+                    file_path="src/todo.py",
+                    line_start=1,
+                    line_end=1,
+                    severity="info",
+                    message="",
+                )
+            ]
+        )
         with pytest.raises(ValueError, match="empty message"):
             agent._validate_output(report)
 
@@ -167,33 +217,54 @@ class TestValidateOutput:
 class TestSanitizeOutput:
     def test_clamps_score(self, agent: CodeReviewAgent):
         report = CodeReviewReport.model_construct(
-            summary="test", overall_score=99.9,
-            comments=[], strengths=["A", "B", "C"], weaknesses=["X", "Y", "Z"],
+            summary="test",
+            overall_score=99.9,
+            comments=[],
+            strengths=["A", "B", "C"],
+            weaknesses=["X", "Y", "Z"],
             security_concerns=[],
         )
         result = agent._sanitize_output(report)
         assert result.overall_score == 10.0
 
         report2 = CodeReviewReport.model_construct(
-            summary="test", overall_score=-5.0,
-            comments=[], strengths=["A", "B", "C"], weaknesses=["X", "Y", "Z"],
+            summary="test",
+            overall_score=-5.0,
+            comments=[],
+            strengths=["A", "B", "C"],
+            weaknesses=["X", "Y", "Z"],
             security_concerns=[],
         )
         result2 = agent._sanitize_output(report2)
         assert result2.overall_score == 0.0
 
     def test_normalizes_severity(self, agent: CodeReviewAgent):
-        report = _valid_report(comments=[ReviewComment(
-            file_path="src/todo.py", line_start=1, line_end=1,
-            severity="  CRITICAL  ", message="msg",
-        )])
+        report = _valid_report(
+            comments=[
+                ReviewComment(
+                    file_path="src/todo.py",
+                    line_start=1,
+                    line_end=1,
+                    severity="  CRITICAL  ",
+                    message="msg",
+                )
+            ]
+        )
         result = agent._sanitize_output(report)
         assert result.comments[0].severity == "critical"
 
     def test_fixes_line_end(self, agent: CodeReviewAgent):
-        report = _valid_report(comments=[ReviewComment(
-            file_path="src/todo.py", line_start=5, line_end=3, severity="info", message="msg",
-        )])
+        report = _valid_report(
+            comments=[
+                ReviewComment(
+                    file_path="src/todo.py",
+                    line_start=5,
+                    line_end=3,
+                    severity="info",
+                    message="msg",
+                )
+            ]
+        )
         result = agent._sanitize_output(report)
         assert result.comments[0].line_end >= result.comments[0].line_start
 
@@ -213,12 +284,19 @@ class TestBuildStateUpdates:
     def test_includes_sanitized_output(self, agent: CodeReviewAgent):
         state = _make_state()
         report = CodeReviewReport(
-            summary="  Good  ", overall_score=7.0,
-            comments=[ReviewComment(
-                file_path="src/todo.py", line_start=1, line_end=1,
-                severity="  WARNING  ", message="  msg  ",
-            )],
-            strengths=["A", "B", "C"], weaknesses=["X", "Y", "Z"],
+            summary="  Good  ",
+            overall_score=7.0,
+            comments=[
+                ReviewComment(
+                    file_path="src/todo.py",
+                    line_start=1,
+                    line_end=1,
+                    severity="  WARNING  ",
+                    message="  msg  ",
+                )
+            ],
+            strengths=["A", "B", "C"],
+            weaknesses=["X", "Y", "Z"],
             security_concerns=["S1"],
         )
         updates = agent._build_state_updates(state, report, {"prompt_tokens": 5, "completion_tokens": 3})

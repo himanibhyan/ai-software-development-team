@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
 from app.core.logging import get_logger
@@ -26,7 +26,7 @@ class PersistService:
 
     async def persist_agent_output(
         self,
-        project_repo: ProjectRepository,
+        _project_repo: ProjectRepository,
         artifact_repo: ArtifactRepository,
         project_id: UUID,
         agent_type: str,
@@ -79,12 +79,16 @@ class PersistService:
         state: dict[str, Any],
     ) -> None:
         """Finalize a completed project: update status, create backup, save final manifest."""
-        status = ProjectStatus.COMPLETED if state.get("errors") is None or len(state["errors"]) == 0 else ProjectStatus.FAILED
+        status = (
+            ProjectStatus.COMPLETED
+            if state.get("errors") is None or len(state["errors"]) == 0
+            else ProjectStatus.FAILED
+        )
 
         await project_repo.update(
             project_id,
             status=status,
-            completed_at=datetime.now(timezone.utc),
+            completed_at=datetime.now(UTC),
         )
 
         # — Final checkpoint —
@@ -102,7 +106,7 @@ class PersistService:
             "project_id": str(project_id),
             "status": status.value,
             "revision": state.get("revision", 0),
-            "completed_at": datetime.now(timezone.utc).isoformat(),
+            "completed_at": datetime.now(UTC).isoformat(),
             "artifacts": {
                 k: v is not None
                 for k, v in state.items()

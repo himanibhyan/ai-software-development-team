@@ -57,21 +57,25 @@ def mock_openai_client():
 
 class TestInitialize:
     async def test_initialize_with_api_key(self, llm):
-        with patch.object(llm, "_client", None):
-            with patch("app.services.llm_service.settings.OPENAI_API_KEY", "sk-test"):
-                with patch("app.services.llm_service.settings.OPENAI_BASE_URL", ""):
-                    with patch("app.services.llm_service.AsyncOpenAI") as mock_client_cls:
-                        await llm.initialize()
-                        mock_client_cls.assert_called_once_with(api_key="sk-test")
-                        assert llm._client is not None
+        with (
+            patch.object(llm, "_client", None),
+            patch("app.services.llm_service.settings.OPENAI_API_KEY", "sk-test"),
+            patch("app.services.llm_service.settings.OPENAI_BASE_URL", ""),
+            patch("app.services.llm_service.AsyncOpenAI") as mock_client_cls,
+        ):
+            await llm.initialize()
+            mock_client_cls.assert_called_once_with(api_key="sk-test")
+            assert llm._client is not None
 
     async def test_initialize_without_api_key(self, llm):
-        with patch.object(llm, "_client", None):
-            with patch("app.services.llm_service.settings.OPENAI_API_KEY", ""):
-                with patch("app.services.llm_service.AsyncOpenAI") as mock_client_cls:
-                    await llm.initialize()
-                    mock_client_cls.assert_not_called()
-                    assert llm._client is None
+        with (
+            patch.object(llm, "_client", None),
+            patch("app.services.llm_service.settings.OPENAI_API_KEY", ""),
+            patch("app.services.llm_service.AsyncOpenAI") as mock_client_cls,
+        ):
+            await llm.initialize()
+            mock_client_cls.assert_not_called()
+            assert llm._client is None
 
 
 class TestIsAvailable:
@@ -109,9 +113,7 @@ class TestGenerate:
             usage=_MockUsage(),
         )
 
-        result, usage = await llm.generate(
-            "system", "user", response_model=_DummyResponse
-        )
+        result, usage = await llm.generate("system", "user", response_model=_DummyResponse)
 
         assert isinstance(result, _DummyResponse)
         assert result.result == "ok"
@@ -137,13 +139,16 @@ class TestGenerate:
     async def test_passes_kwargs_to_client(self, llm, mock_openai_client):
         llm._client = mock_openai_client
         mock_openai_client.chat.completions.create.return_value = _MockChatResponse(
-            content="ok", usage=None,
+            content="ok",
+            usage=None,
         )
 
-        with patch("app.services.llm_service.settings.OPENAI_MODEL", "gpt-4"):
-            with patch("app.services.llm_service.settings.OPENAI_TEMPERATURE", 0.5):
-                with patch("app.services.llm_service.settings.OPENAI_MAX_TOKENS", 2048):
-                    await llm.generate("sys", "usr", temperature=0.7, max_tokens=1024)
+        with (
+            patch("app.services.llm_service.settings.OPENAI_MODEL", "gpt-4"),
+            patch("app.services.llm_service.settings.OPENAI_TEMPERATURE", 0.5),
+            patch("app.services.llm_service.settings.OPENAI_MAX_TOKENS", 2048),
+        ):
+            await llm.generate("sys", "usr", temperature=0.7, max_tokens=1024)
 
         mock_openai_client.chat.completions.create.assert_called_once()
         _, kwargs = mock_openai_client.chat.completions.create.call_args
@@ -154,12 +159,15 @@ class TestGenerate:
     async def test_default_temperature_and_max_tokens(self, llm, mock_openai_client):
         llm._client = mock_openai_client
         mock_openai_client.chat.completions.create.return_value = _MockChatResponse(
-            content="ok", usage=None,
+            content="ok",
+            usage=None,
         )
 
-        with patch("app.services.llm_service.settings.OPENAI_TEMPERATURE", 0.3):
-            with patch("app.services.llm_service.settings.OPENAI_MAX_TOKENS", 4096):
-                await llm.generate("sys", "usr")
+        with (
+            patch("app.services.llm_service.settings.OPENAI_TEMPERATURE", 0.3),
+            patch("app.services.llm_service.settings.OPENAI_MAX_TOKENS", 4096),
+        ):
+            await llm.generate("sys", "usr")
 
         _, kwargs = mock_openai_client.chat.completions.create.call_args
         assert kwargs["temperature"] == 0.3
@@ -168,7 +176,8 @@ class TestGenerate:
     async def test_zero_token_usage_when_no_usage(self, llm, mock_openai_client):
         llm._client = mock_openai_client
         mock_openai_client.chat.completions.create.return_value = _MockChatResponse(
-            content="ok", usage=_MockUsage(prompt=0, completion=0, total=0),
+            content="ok",
+            usage=_MockUsage(prompt=0, completion=0, total=0),
         )
 
         _, usage = await llm.generate("sys", "usr")

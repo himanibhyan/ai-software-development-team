@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 from typing import Any
 
@@ -167,25 +166,29 @@ class RequirementsAgent(BaseAgent):
 
         # ── Description quality ──────────────────────────────────
         vague_terms = [
-            "user-friendly", "easy to use", "fast", "efficient", "robust",
-            "reliable", "good", "nice", "simple", "should work",
+            "user-friendly",
+            "easy to use",
+            "fast",
+            "efficient",
+            "robust",
+            "reliable",
+            "good",
+            "nice",
+            "simple",
+            "should work",
         ]
         for i, fr in enumerate(output.functional_requirements):
             desc_lower = fr.description.lower()
             for term in vague_terms:
                 if term in desc_lower:
-                    errors.append(
-                        f"Vague term '{term}' in FR-{i+1:02d}: '{fr.description[:60]}...'"
-                    )
+                    errors.append(f"Vague term '{term}' in FR-{i + 1:02d}: '{fr.description[:60]}...'")
                     break
 
         for i, nfr in enumerate(output.non_functional_requirements):
             desc_lower = nfr.description.lower()
             for term in vague_terms:
                 if term in desc_lower and nfr.category != "usability":
-                    errors.append(
-                        f"Vague term '{term}' in NFR-{i+1:02d}: '{nfr.description[:60]}...'"
-                    )
+                    errors.append(f"Vague term '{term}' in NFR-{i + 1:02d}: '{nfr.description[:60]}...'")
                     break
 
         # ── Category coverage ────────────────────────────────────
@@ -218,9 +221,7 @@ class RequirementsAgent(BaseAgent):
                 nfr_count=nfr_count,
                 us_count=us_count,
             )
-            raise ValueError(
-                f"Requirements validation failed with {len(errors)} issue(s):\n{error_summary}"
-            )
+            raise ValueError(f"Requirements validation failed with {len(errors)} issue(s):\n{error_summary}")
 
         return output
 

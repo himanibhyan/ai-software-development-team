@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import List, Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -60,7 +59,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = '["http://localhost:3000"]'
 
     @property
-    def cors_origins_list(self) -> List[str]:
+    def cors_origins_list(self) -> list[str]:
         return json.loads(self.CORS_ORIGINS)
 
     # PostgreSQL
@@ -109,8 +108,8 @@ class Settings(BaseSettings):
     OUTPUT_DIR: Path = Path("./generated_projects")
 
     # GitHub
-    GITHUB_TOKEN: Optional[str] = None
-    GITHUB_OWNER: Optional[str] = None
+    GITHUB_TOKEN: str | None = None
+    GITHUB_OWNER: str | None = None
 
 
 settings = Settings()

@@ -104,9 +104,7 @@ class TestCheckpointDiscovery:
     def test_get_latest_checkpoint_no_files(self):
         assert get_latest_checkpoint() is None
 
-    def test_get_latest_checkpoint_returns_most_recent(
-        self, project_root: Path
-    ):
+    def test_get_latest_checkpoint_returns_most_recent(self, project_root: Path):
         early = project_root / "checkpoints" / "early.json"
         late = project_root / "checkpoints" / "late.json"
         early.write_text("{}")
@@ -135,73 +133,43 @@ class TestCheckpointLoading:
 
 
 class TestRestorePaths:
-    def test_manifest_written_to_storage_manifests(
-        self, project_root: Path, sample_checkpoint_data: dict
-    ):
+    def test_manifest_written_to_storage_manifests(self, project_root: Path, sample_checkpoint_data: dict):
         restore_from_checkpoint(sample_checkpoint_data)
-        manifest_path = (
-            project_root / "storage" / "manifests" / "test-proj-123.json"
-        )
+        manifest_path = project_root / "storage" / "manifests" / "test-proj-123.json"
         assert manifest_path.exists(), f"Expected manifest at {manifest_path}"
         manifest = json.loads(manifest_path.read_text())
         assert manifest["project_id"] == "test-proj-123"
 
-    def test_manifest_not_written_to_project_root(
-        self, project_root: Path, sample_checkpoint_data: dict
-    ):
+    def test_manifest_not_written_to_project_root(self, project_root: Path, sample_checkpoint_data: dict):
         restore_from_checkpoint(sample_checkpoint_data)
         old_path = project_root / "project_manifest.json"
         assert not old_path.exists(), f"Should NOT write to {old_path}"
 
-    def test_generated_code_written_to_storage_generated_code(
-        self, project_root: Path, sample_checkpoint_data: dict
-    ):
+    def test_generated_code_written_to_storage_generated_code(self, project_root: Path, sample_checkpoint_data: dict):
         restore_from_checkpoint(sample_checkpoint_data)
-        gen_dir = (
-            project_root / "storage" / "generated_code" / "test-proj-123" / "rev_3"
-        )
+        gen_dir = project_root / "storage" / "generated_code" / "test-proj-123" / "rev_3"
         for file_rel in ("src/main.py", "src/utils.py"):
             expected = gen_dir / file_rel
             assert expected.exists(), f"Expected generated code at {expected}"
             assert expected.read_text() != ""
 
-    def test_generated_code_not_written_to_legacy_generated(
-        self, project_root: Path, sample_checkpoint_data: dict
-    ):
+    def test_generated_code_not_written_to_legacy_generated(self, project_root: Path, sample_checkpoint_data: dict):
         restore_from_checkpoint(sample_checkpoint_data)
         old_dir = project_root / "generated"
         assert not old_dir.exists(), f"Should NOT write to legacy {old_dir}"
 
-    def test_recovered_jsons_written_to_storage_recovered(
-        self, project_root: Path, sample_checkpoint_data: dict
-    ):
+    def test_recovered_jsons_written_to_storage_recovered(self, project_root: Path, sample_checkpoint_data: dict):
         restore_from_checkpoint(sample_checkpoint_data)
         for key in ("requirements", "architecture"):
-            expected = (
-                project_root
-                / "storage"
-                / "recovered"
-                / "test-proj-123"
-                / f"{key}.json"
-            )
+            expected = project_root / "storage" / "recovered" / "test-proj-123" / f"{key}.json"
             assert expected.exists(), f"Expected recovered artifact at {expected}"
 
-    def test_dry_run_does_not_write_files(
-        self, project_root: Path, sample_checkpoint_data: dict
-    ):
+    def test_dry_run_does_not_write_files(self, project_root: Path, sample_checkpoint_data: dict):
         restore_from_checkpoint(sample_checkpoint_data, dry_run=True)
         manifest = project_root / "storage" / "manifests" / "test-proj-123.json"
-        gen_dir = (
-            project_root / "storage" / "generated_code" / "test-proj-123" / "rev_3"
-        )
+        gen_dir = project_root / "storage" / "generated_code" / "test-proj-123" / "rev_3"
         source = gen_dir / "src" / "main.py"
-        recovered = (
-            project_root
-            / "storage"
-            / "recovered"
-            / "test-proj-123"
-            / "requirements.json"
-        )
+        recovered = project_root / "storage" / "recovered" / "test-proj-123" / "requirements.json"
         assert not manifest.exists()
         assert not source.exists()
         assert not recovered.exists()
@@ -211,40 +179,22 @@ class TestRestorePaths:
 
 
 class TestRestoreContent:
-    def test_restored_source_code_has_correct_content(
-        self, project_root: Path, sample_checkpoint_data: dict
-    ):
+    def test_restored_source_code_has_correct_content(self, project_root: Path, sample_checkpoint_data: dict):
         restore_from_checkpoint(sample_checkpoint_data)
-        main_path = (
-            project_root
-            / "storage"
-            / "generated_code"
-            / "test-proj-123"
-            / "rev_3"
-            / "src"
-            / "main.py"
-        )
+        main_path = project_root / "storage" / "generated_code" / "test-proj-123" / "rev_3" / "src" / "main.py"
         assert main_path.read_text() == "print('hello')"
 
-    def test_restored_manifest_contains_artifact_status(
-        self, project_root: Path, sample_checkpoint_data: dict
-    ):
+    def test_restored_manifest_contains_artifact_status(self, project_root: Path, sample_checkpoint_data: dict):
         restore_from_checkpoint(sample_checkpoint_data)
-        manifest = json.loads(
-            (project_root / "storage" / "manifests" / "test-proj-123.json").read_text()
-        )
+        manifest = json.loads((project_root / "storage" / "manifests" / "test-proj-123.json").read_text())
         assert manifest["artifacts"]["requirements"] is True
         assert manifest["artifacts"]["architecture"] is True
         assert manifest["artifacts"]["test_suite"] is False
         assert manifest["artifacts"]["documentation"] is False
 
-    def test_restored_manifest_includes_recovered_metadata(
-        self, project_root: Path, sample_checkpoint_data: dict
-    ):
+    def test_restored_manifest_includes_recovered_metadata(self, project_root: Path, sample_checkpoint_data: dict):
         restore_from_checkpoint(sample_checkpoint_data)
-        manifest = json.loads(
-            (project_root / "storage" / "manifests" / "test-proj-123.json").read_text()
-        )
+        manifest = json.loads((project_root / "storage" / "manifests" / "test-proj-123.json").read_text())
         assert "recovered_at" in manifest
         assert manifest["checkpoint_timestamp"] == "2026-06-06T12:00:00+00:00"
         assert manifest["status"] == "completed"

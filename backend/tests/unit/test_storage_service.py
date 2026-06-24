@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -10,7 +8,6 @@ from app.services.storage_service import (
     BACKUPS_DIR,
     CHECKPOINTS_DIR,
     STORAGE_DIR,
-    StorageService,
     storage_service,
 )
 

@@ -91,14 +91,10 @@ class TestAsyncInvocation:
         mock_llm.is_available = False
 
         mock_pipeline = MagicMock()
-        mock_pipeline.ainvoke = AsyncMock(
-            return_value=_final_state(status="completed", revision=1)
-        )
+        mock_pipeline.ainvoke = AsyncMock(return_value=_final_state(status="completed", revision=1))
         mock_get_pipeline.return_value = mock_pipeline
 
-        run_generation_pipeline.run(
-            idea="test idea", project_id=str(uuid4())
-        )
+        run_generation_pipeline.run(idea="test idea", project_id=str(uuid4()))
 
         mock_pipeline.ainvoke.assert_called_once()
         mock_pipeline.invoke.assert_not_called()
@@ -117,14 +113,10 @@ class TestAsyncInvocation:
         mock_llm.is_available = False
 
         mock_pipeline = MagicMock()
-        mock_pipeline.ainvoke = AsyncMock(
-            return_value=_final_state(status="completed", revision=1)
-        )
+        mock_pipeline.ainvoke = AsyncMock(return_value=_final_state(status="completed", revision=1))
         mock_get_pipeline.return_value = mock_pipeline
 
-        run_generation_pipeline.run(
-            idea="test idea", project_id=project_id
-        )
+        run_generation_pipeline.run(idea="test idea", project_id=project_id)
 
         mock_pipeline.ainvoke.assert_called_once()
         _call_kwargs = mock_pipeline.ainvoke.call_args.kwargs
@@ -145,15 +137,11 @@ class TestAsyncInvocation:
         mock_llm.is_available = False
 
         mock_pipeline = MagicMock()
-        mock_pipeline.ainvoke = AsyncMock(
-            return_value=_final_state(status="completed", revision=1)
-        )
+        mock_pipeline.ainvoke = AsyncMock(return_value=_final_state(status="completed", revision=1))
         mock_get_pipeline.return_value = mock_pipeline
 
         project_id = dummy_state["project_id"]
-        run_generation_pipeline.run(
-            idea="test idea", project_id=project_id
-        )
+        run_generation_pipeline.run(idea="test idea", project_id=project_id)
 
         mock_pipeline.ainvoke.assert_called_once_with(
             dummy_state,
@@ -208,9 +196,7 @@ class TestTaskResultFormat:
         mock_pipeline.ainvoke = AsyncMock(return_value=final_state)
         mock_get_pipeline.return_value = mock_pipeline
 
-        result = run_generation_pipeline.run(
-            idea="test", project_id=project_id
-        )
+        result = run_generation_pipeline.run(idea="test", project_id=project_id)
 
         assert result["project_id"] == project_id
         assert result["status"] == "completed"
@@ -237,20 +223,23 @@ class TestTaskResultFormat:
         mock_llm.is_available = False
 
         final_state = _final_state(
-            status="running", revision=1,
-            requirements=None, architecture=None,
-            source_code=None, test_suite=None,
-            documentation=None, review_report=None,
-            errors=[], warnings=[],
+            status="running",
+            revision=1,
+            requirements=None,
+            architecture=None,
+            source_code=None,
+            test_suite=None,
+            documentation=None,
+            review_report=None,
+            errors=[],
+            warnings=[],
         )
 
         mock_pipeline = MagicMock()
         mock_pipeline.ainvoke = AsyncMock(return_value=final_state)
         mock_get_pipeline.return_value = mock_pipeline
 
-        result = run_generation_pipeline.run(
-            idea="test", project_id=str(uuid4())
-        )
+        result = run_generation_pipeline.run(idea="test", project_id=str(uuid4()))
 
         assert result["status"] == "running"
         assert result["has_requirements"] is False
@@ -274,20 +263,23 @@ class TestTaskResultFormat:
         mock_llm.is_available = False
 
         mock_pipeline = MagicMock()
-        mock_pipeline.ainvoke = AsyncMock(
-            return_value=_final_state(status="completed", revision=1)
-        )
+        mock_pipeline.ainvoke = AsyncMock(return_value=_final_state(status="completed", revision=1))
         mock_get_pipeline.return_value = mock_pipeline
 
-        result = run_generation_pipeline.run(
-            idea="test", project_id=str(uuid4())
-        )
+        result = run_generation_pipeline.run(idea="test", project_id=str(uuid4()))
 
         expected_keys = {
-            "project_id", "status", "revision",
-            "has_requirements", "has_architecture", "has_source_code",
-            "has_tests", "has_documentation", "has_review",
-            "error_count", "warning_count",
+            "project_id",
+            "status",
+            "revision",
+            "has_requirements",
+            "has_architecture",
+            "has_source_code",
+            "has_tests",
+            "has_documentation",
+            "has_review",
+            "error_count",
+            "warning_count",
         }
         assert set(result.keys()) == expected_keys
 
@@ -320,9 +312,7 @@ class TestTaskErrorHandling:
         retry_patcher = _mock_retry()
 
         with pytest.raises(Exception, match="retry-called"):
-            run_generation_pipeline.run(
-                idea="test", project_id=str(uuid4())
-            )
+            run_generation_pipeline.run(idea="test", project_id=str(uuid4()))
 
         retry_patcher.stop()
 
@@ -341,9 +331,7 @@ class TestTaskErrorHandling:
         retry_patcher = _mock_retry()
 
         with pytest.raises(Exception, match="retry-called"):
-            run_generation_pipeline.run(
-                idea="", project_id=str(uuid4())
-            )
+            run_generation_pipeline.run(idea="", project_id=str(uuid4()))
 
         retry_patcher.stop()
 
@@ -374,9 +362,7 @@ class TestAsyncBridgeSafety:
         mock_pipeline.ainvoke = AsyncMock(return_value=result_value)
         mock_get_pipeline.return_value = mock_pipeline
 
-        result = run_generation_pipeline.run(
-            idea="test", project_id=str(uuid4())
-        )
+        result = run_generation_pipeline.run(idea="test", project_id=str(uuid4()))
 
         assert result["status"] == "completed"
         assert result["revision"] == 2
@@ -394,15 +380,11 @@ class TestAsyncBridgeSafety:
         mock_llm.is_available = False
 
         mock_pipeline = MagicMock()
-        mock_pipeline.ainvoke = AsyncMock(
-            return_value=_final_state(status="completed", revision=1)
-        )
+        mock_pipeline.ainvoke = AsyncMock(return_value=_final_state(status="completed", revision=1))
         mock_get_pipeline.return_value = mock_pipeline
 
         for _ in range(5):
-            result = run_generation_pipeline.run(
-                idea="test", project_id=str(uuid4())
-            )
+            result = run_generation_pipeline.run(idea="test", project_id=str(uuid4()))
             assert result["status"] == "completed"
 
 
@@ -434,14 +416,10 @@ class TestLlmInitialization:
         mock_llm.initialize = AsyncMock()
 
         mock_pipeline = MagicMock()
-        mock_pipeline.ainvoke = AsyncMock(
-            return_value=_final_state(status="completed", revision=1)
-        )
+        mock_pipeline.ainvoke = AsyncMock(return_value=_final_state(status="completed", revision=1))
         mock_get_pipeline.return_value = mock_pipeline
 
-        result = run_generation_pipeline.run(
-            idea="test", project_id=str(uuid4())
-        )
+        result = run_generation_pipeline.run(idea="test", project_id=str(uuid4()))
 
         mock_llm.initialize.assert_awaited_once()
         mock_init_registry.assert_called_once_with(mock_llm)
@@ -462,14 +440,10 @@ class TestLlmInitialization:
         mock_llm.is_available = True
 
         mock_pipeline = MagicMock()
-        mock_pipeline.ainvoke = AsyncMock(
-            return_value=_final_state(status="completed", revision=1)
-        )
+        mock_pipeline.ainvoke = AsyncMock(return_value=_final_state(status="completed", revision=1))
         mock_get_pipeline.return_value = mock_pipeline
 
-        result = run_generation_pipeline.run(
-            idea="test", project_id=str(uuid4())
-        )
+        result = run_generation_pipeline.run(idea="test", project_id=str(uuid4()))
 
         mock_llm.initialize.assert_not_called()
         assert result["status"] == "completed"

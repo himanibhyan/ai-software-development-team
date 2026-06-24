@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 
 class AppException(Exception):
@@ -10,7 +10,7 @@ class AppException(Exception):
         self,
         message: str = "An application error occurred",
         status_code: int = 500,
-        details: Optional[dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         self.message = message
         self.status_code = status_code
@@ -22,8 +22,8 @@ class NotFoundException(AppException):
     def __init__(
         self,
         entity: str = "Resource",
-        entity_id: Optional[str] = None,
-        details: Optional[dict[str, Any]] = None,
+        entity_id: str | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         message = f"{entity} not found"
         if entity_id:
@@ -35,7 +35,7 @@ class ValidationException(AppException):
     def __init__(
         self,
         message: str = "Validation failed",
-        details: Optional[dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message=message, status_code=422, details=details)
 
@@ -44,7 +44,7 @@ class AuthenticationException(AppException):
     def __init__(
         self,
         message: str = "Authentication failed",
-        details: Optional[dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message=message, status_code=401, details=details)
 
@@ -53,7 +53,7 @@ class AuthorizationException(AppException):
     def __init__(
         self,
         message: str = "Forbidden",
-        details: Optional[dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message=message, status_code=403, details=details)
 
@@ -63,7 +63,7 @@ class AgentException(AppException):
         self,
         agent_type: str,
         message: str = "Agent execution failed",
-        details: Optional[dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(
             message=f"[{agent_type}] {message}",
@@ -76,7 +76,7 @@ class LLMException(AppException):
     def __init__(
         self,
         message: str = "LLM service error",
-        details: Optional[dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message=message, status_code=502, details=details)
 
@@ -85,6 +85,6 @@ class RateLimitException(AppException):
     def __init__(
         self,
         message: str = "Rate limit exceeded",
-        details: Optional[dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message=message, status_code=429, details=details)

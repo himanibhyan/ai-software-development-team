@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
-from app.models.domain.enums import AgentType, ProjectStatus
+from app.models.domain.enums import AgentType
 from app.models.domain.project import (
     ArchitectureDoc,
     CodeReviewReport,
@@ -25,7 +25,7 @@ OUTPUT_SCHEMAS: dict[str, type] = {
 
 def validate_artifact(
     agent_type: str,
-    artifact_data: Optional[dict[str, Any]],
+    artifact_data: dict[str, Any] | None,
 ) -> list[str]:
     """Validate an artifact against its expected schema.
 
@@ -109,10 +109,7 @@ def validate_artifact(
                 cols = table.get("columns", [])
                 if len(cols) < 2:
                     errors.append(f"Table '{table.get('name', f'idx_{ti}')}' has too few columns: {len(cols)} (min 2)")
-                has_pk = any(
-                    "primary" in str(col.get("constraints", "")).lower()
-                    for col in cols
-                )
+                has_pk = any("primary" in str(col.get("constraints", "")).lower() for col in cols)
                 if not has_pk:
                     errors.append(f"Table '{table.get('name', f'idx_{ti}')}' has no primary key")
         api_spec = artifact_data.get("api_spec")
@@ -147,7 +144,7 @@ def validate_artifact(
 
 def validate_artifact_required_fields(
     agent_type: str,
-    artifact_data: Optional[dict[str, Any]],
+    artifact_data: dict[str, Any] | None,
 ) -> list[str]:
     """Check that all required fields are present in the artifact."""
     errors: list[str] = []

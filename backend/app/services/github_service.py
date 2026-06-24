@@ -38,9 +38,7 @@ class GitHubService:
     ) -> httpx.Response:
         url = f"{self.API_BASE}{path}"
         async with httpx.AsyncClient() as client:
-            response = await client.request(
-                method, url, headers=self._headers, **kwargs
-            )
+            response = await client.request(method, url, headers=self._headers, **kwargs)
         return response
 
     async def create_repository(
@@ -122,9 +120,7 @@ class GitHubService:
             details={"response": response.text[:500]},
         )
 
-    async def get_file_sha(
-        self, owner: str, repo: str, path: str
-    ) -> str | None:
+    async def get_file_sha(self, owner: str, repo: str, path: str) -> str | None:
         """Get the SHA of an existing file (needed for updates)."""
         url = f"/repos/{owner}/{repo}/contents/{path}"
         response = await self._request("GET", url)
@@ -151,9 +147,9 @@ class GitHubService:
                 status_code=502,
             )
 
-        description = project_data.get("requirements", {}).get(
-            "project_overview", ""
-        ) or f"AI-generated project: {project_id}"
+        description = (
+            project_data.get("requirements", {}).get("project_overview", "") or f"AI-generated project: {project_id}"
+        )
 
         repo = await self.create_repository(
             name=repo_name,
@@ -170,24 +166,18 @@ class GitHubService:
 
         # README
         readme = "# " + repo_name + "\n\n"
-        readme += (project_data.get("documentation", {}) or {}).get(
-            "readme", ""
-        ) or description
+        readme += (project_data.get("documentation", {}) or {}).get("readme", "") or description
         files.append(("README.md", readme, "Add README"))
 
         # Requirements artifact
         reqs = project_data.get("requirements")
         if reqs:
-            files.append(
-                ("docs/requirements.json", json.dumps(reqs, indent=2), "Add requirements")
-            )
+            files.append(("docs/requirements.json", json.dumps(reqs, indent=2), "Add requirements"))
 
         # Architecture artifact
         arch = project_data.get("architecture")
         if arch:
-            files.append(
-                ("docs/architecture.json", json.dumps(arch, indent=2), "Add architecture")
-            )
+            files.append(("docs/architecture.json", json.dumps(arch, indent=2), "Add architecture"))
 
         # Source code
         source = project_data.get("source_code")
@@ -214,21 +204,15 @@ class GitHubService:
         if docs and isinstance(docs, dict):
             setup_guide = docs.get("setup_guide", "")
             if setup_guide:
-                files.append(
-                    ("docs/SETUP.md", setup_guide, "Add setup guide")
-                )
+                files.append(("docs/SETUP.md", setup_guide, "Add setup guide"))
 
         # Push all files
         pushed = []
         for file_path, content, commit_message in files:
             try:
-                result = await self.push_file(
-                    owner, repo_name_only, file_path, content, commit_message
-                )
+                result = await self.push_file(owner, repo_name_only, file_path, content, commit_message)
                 content_sha = result.get("content", {}).get("sha", "")
-                pushed.append(
-                    {"path": file_path, "status": "created", "sha": content_sha}
-                )
+                pushed.append({"path": file_path, "status": "created", "sha": content_sha})
             except AppException as exc:
                 logger.warning(
                     "github_push_skipped",

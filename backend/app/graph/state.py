@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import operator
-from datetime import datetime, timezone
-from typing import Annotated, Any, Optional, TypedDict
+from datetime import UTC, datetime
+from typing import Annotated, Any, TypedDict
 from uuid import UUID, uuid4
 
 from app.core.logging import get_logger
@@ -23,27 +23,27 @@ class GraphState(TypedDict):
 
     # === Input ===
     idea: str
-    constraints: Optional[dict[str, Any]]
+    constraints: dict[str, Any] | None
 
     # === Project Metadata ===
     project_id: str
     status: str  # ProjectStatus enum value as string
-    current_agent: Optional[str]  # AgentType enum value as string
+    current_agent: str | None  # AgentType enum value as string
     errors: Annotated[list[dict[str, Any]], operator.add]
     warnings: Annotated[list[dict[str, Any]], operator.add]
 
     # === Generated Artifacts ===
     # Each artifact is stored as an optional dict (model_dump() of domain model)
-    requirements: Optional[dict[str, Any]]
-    architecture: Optional[dict[str, Any]]
-    source_code: Optional[dict[str, Any]]
-    test_suite: Optional[dict[str, Any]]
-    documentation: Optional[dict[str, Any]]
-    review_report: Optional[dict[str, Any]]
+    requirements: dict[str, Any] | None
+    architecture: dict[str, Any] | None
+    source_code: dict[str, Any] | None
+    test_suite: dict[str, Any] | None
+    documentation: dict[str, Any] | None
+    review_report: dict[str, Any] | None
 
     # === Execution Tracking ===
     start_time: str
-    end_time: Optional[str]
+    end_time: str | None
     revision: int
     token_usage: Annotated[list[dict[str, Any]], operator.add]
     agent_results: Annotated[list[dict[str, Any]], operator.add]
@@ -62,8 +62,8 @@ class GraphState(TypedDict):
 
 def create_initial_state(
     idea: str,
-    constraints: Optional[dict[str, Any]] = None,
-    project_id: Optional[UUID] = None,
+    constraints: dict[str, Any] | None = None,
+    project_id: UUID | None = None,
     max_review_attempts: int = 3,
 ) -> GraphState:
     """Create the initial state for a new generation pipeline.
@@ -77,7 +77,7 @@ def create_initial_state(
     Returns:
         A new GraphState dict ready for pipeline execution.
     """
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     state: GraphState = {
         # Input

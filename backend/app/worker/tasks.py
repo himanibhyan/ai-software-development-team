@@ -110,6 +110,7 @@ def run_generation_pipeline(
             task_id=self.request.id,
         )
         from contextlib import suppress
+
         with suppress(Exception):
             asyncio.run(publisher.pipeline_error(str(exc)))
         raise self.retry(exc=exc) from exc

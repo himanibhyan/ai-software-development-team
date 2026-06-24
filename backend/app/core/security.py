@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import bcrypt
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
+import bcrypt
 from jose import JWTError, jwt
 
 from app.config import settings
@@ -13,22 +13,18 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(
-        plain_password.encode("utf-8"), hashed_password.encode("utf-8")
-    )
+    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
 def create_access_token(
     subject: str,
     expires_delta: timedelta | None = None,
 ) -> str:
-    expire = datetime.now(timezone.utc) + (
-        expires_delta or timedelta(hours=settings.JWT_EXPIRATION_HOURS)
-    )
+    expire = datetime.now(UTC) + (expires_delta or timedelta(hours=settings.JWT_EXPIRATION_HOURS))
     payload = {
         "sub": subject,
         "exp": expire,
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.now(UTC),
         "type": "access",
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
@@ -36,9 +32,7 @@ def create_access_token(
 
 def decode_access_token(token: str) -> dict:
     try:
-        payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
-        )
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         if payload.get("type") != "access":
             raise JWTError("Invalid token type")
         return payload

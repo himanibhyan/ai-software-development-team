@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -10,7 +10,7 @@ from app.models.domain.enums import AgentStatus, ProjectStatus
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class FunctionalRequirement(BaseModel):
@@ -74,11 +74,11 @@ class DatabaseTable(BaseModel):
 class DatabaseDesign(BaseModel):
     engine: str = Field(min_length=1, description="e.g., PostgreSQL 16, MySQL 8")
     tables: list[DatabaseTable] = Field(min_length=1)
-    orm: Optional[str] = Field(None, description="e.g., SQLAlchemy 2.0, Prisma, Drizzle")
-    migration_tool: Optional[str] = Field(None, description="e.g., Alembic, Prisma Migrate")
-    caching_strategy: Optional[str] = Field(None, description="e.g., Redis caching with cache-aside pattern")
-    sharding_strategy: Optional[str] = Field(None, description="If applicable")
-    backup_strategy: Optional[str] = Field(None, description="e.g., Daily snapshots + WAL archiving")
+    orm: str | None = Field(None, description="e.g., SQLAlchemy 2.0, Prisma, Drizzle")
+    migration_tool: str | None = Field(None, description="e.g., Alembic, Prisma Migrate")
+    caching_strategy: str | None = Field(None, description="e.g., Redis caching with cache-aside pattern")
+    sharding_strategy: str | None = Field(None, description="If applicable")
+    backup_strategy: str | None = Field(None, description="e.g., Daily snapshots + WAL archiving")
 
     model_config = {"frozen": True}
 
@@ -87,8 +87,8 @@ class APIEndpoint(BaseModel):
     path: str = Field(min_length=1, pattern=r"^/")
     method: str = Field(pattern=r"^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$")
     description: str = Field(min_length=5)
-    request_body: Optional[dict[str, Any]] = Field(None, description="JSON schema of request body")
-    response_body: Optional[dict[str, Any]] = Field(None, description="JSON schema of response body")
+    request_body: dict[str, Any] | None = Field(None, description="JSON schema of request body")
+    response_body: dict[str, Any] | None = Field(None, description="JSON schema of response body")
     auth_required: bool = Field(default=True)
     rate_limited: bool = Field(default=False)
 
@@ -100,8 +100,8 @@ class APISpec(BaseModel):
     base_url: str = Field(min_length=1, description="e.g., /api/v1")
     endpoints: list[APIEndpoint] = Field(min_length=1)
     auth_method: str = Field(default="JWT", description="e.g., JWT, OAuth 2.0, API keys, Session")
-    rate_limiting: Optional[str] = Field(None, description="e.g., 1000 req/min per user")
-    versioning_strategy: Optional[str] = Field(None, description="e.g., URL path versioning /v1/, /v2/")
+    rate_limiting: str | None = Field(None, description="e.g., 1000 req/min per user")
+    versioning_strategy: str | None = Field(None, description="e.g., URL path versioning /v1/, /v2/")
 
     model_config = {"frozen": True}
 
@@ -110,7 +110,7 @@ class FolderEntry(BaseModel):
     name: str = Field(min_length=1)
     type: str = Field(pattern=r"^(file|directory)$")
     children: list[FolderEntry] = Field(default_factory=list)
-    description: Optional[str] = Field(None)
+    description: str | None = Field(None)
 
     model_config = {"frozen": True}
 
@@ -139,14 +139,14 @@ class ArchitectureDoc(BaseModel):
         min_length=3,
         description="Technology choices keyed by category: language, framework, database, messaging, cache, etc.",
     )
-    diagram_mermaid: Optional[str] = Field(None, description="Mermaid.js diagram definition string")
+    diagram_mermaid: str | None = Field(None, description="Mermaid.js diagram definition string")
     deployment_strategy: str = Field(min_length=20, description="How the system is deployed and scaled")
     security_considerations: list[str] = Field(min_length=1)
-    database_design: Optional[DatabaseDesign] = Field(None, description="Database schema design")
-    api_spec: Optional[APISpec] = Field(None, description="API specification")
-    folder_structure: Optional[FolderStructure] = Field(None, description="Recommended project folder structure")
-    scalability_notes: Optional[str] = Field(None, description="Horizontal/vertical scaling approach")
-    monitoring_strategy: Optional[str] = Field(None, description="Logging, metrics, alerting approach")
+    database_design: DatabaseDesign | None = Field(None, description="Database schema design")
+    api_spec: APISpec | None = Field(None, description="API specification")
+    folder_structure: FolderStructure | None = Field(None, description="Recommended project folder structure")
+    scalability_notes: str | None = Field(None, description="Horizontal/vertical scaling approach")
+    monitoring_strategy: str | None = Field(None, description="Logging, metrics, alerting approach")
 
     model_config = {"frozen": True}
 
@@ -192,7 +192,7 @@ class ReviewComment(BaseModel):
     line_end: int
     severity: str = "info"
     message: str
-    suggestion: Optional[str] = None
+    suggestion: str | None = None
 
     model_config = {"frozen": True}
 
@@ -210,10 +210,10 @@ class CodeReviewReport(BaseModel):
 
 class Documentation(BaseModel):
     readme: str
-    api_docs: Optional[str] = None
+    api_docs: str | None = None
     setup_guide: str
-    architecture_overview: Optional[str] = None
-    contributing_guide: Optional[str] = None
+    architecture_overview: str | None = None
+    contributing_guide: str | None = None
 
     model_config = {"frozen": True}
 
@@ -221,7 +221,7 @@ class Documentation(BaseModel):
 class AgentError(BaseModel):
     agent_type: str
     message: str
-    details: Optional[dict[str, Any]] = None
+    details: dict[str, Any] | None = None
     timestamp: datetime = Field(default_factory=_utcnow)
 
 
@@ -231,14 +231,14 @@ class AgentExecution(BaseModel):
     input_tokens: int = 0
     output_tokens: int = 0
     duration_ms: int = 0
-    error: Optional[AgentError] = None
-    started_at: Optional[datetime] = None
-    ended_at: Optional[datetime] = None
+    error: AgentError | None = None
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
 
 
 class ProjectIdeation(BaseModel):
     idea: str
-    constraints: Optional[dict[str, Any]] = None
+    constraints: dict[str, Any] | None = None
     project_id: UUID = Field(default_factory=uuid4)
     status: ProjectStatus = ProjectStatus.PENDING
     created_at: datetime = Field(default_factory=_utcnow)

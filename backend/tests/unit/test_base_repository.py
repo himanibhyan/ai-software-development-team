@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-import pytest
 import pytest_asyncio
 from sqlalchemy import String, Text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.db.repositories.base import BaseRepository
 

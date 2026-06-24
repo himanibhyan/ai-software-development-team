@@ -80,9 +80,7 @@ class CodeReviewAgent(BaseAgent):
             if c.line_start < 1:
                 errors.append(f"Comment at index {i} has invalid line_start: {c.line_start}")
             if c.line_end < c.line_start:
-                errors.append(
-                    f"Comment at index {i} has line_end ({c.line_end}) < line_start ({c.line_start})"
-                )
+                errors.append(f"Comment at index {i} has line_end ({c.line_end}) < line_start ({c.line_start})")
             if c.severity not in VALID_SEVERITIES:
                 errors.append(
                     f"Comment at index {i} has invalid severity: '{c.severity}' "
@@ -97,9 +95,7 @@ class CodeReviewAgent(BaseAgent):
                 "code_review_validation_errors",
                 error_count=len(errors),
             )
-            raise ValueError(
-                f"Code review validation failed with {len(errors)} issue(s):\n{error_summary}"
-            )
+            raise ValueError(f"Code review validation failed with {len(errors)} issue(s):\n{error_summary}")
 
         return output
 
@@ -138,7 +134,5 @@ class CodeReviewAgent(BaseAgent):
             "revision": state["revision"] + 1,
         }
         if token_usage:
-            updates["token_usage"] = [
-                {"agent": self.agent_type.value, **token_usage}
-            ]
+            updates["token_usage"] = [{"agent": self.agent_type.value, **token_usage}]
         return updates

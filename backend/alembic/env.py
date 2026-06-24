@@ -3,17 +3,17 @@ from __future__ import annotations
 import asyncio
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import create_async_engine
 
+from alembic import context
 from app.config import settings
 from app.db.base import Base
+from app.models.db.artifact import ArtifactModel  # noqa: F401
+from app.models.db.execution import ExecutionModel  # noqa: F401
 
 # Import all models so Alembic can detect them
 from app.models.db.project import ProjectModel  # noqa: F401
-from app.models.db.artifact import ArtifactModel  # noqa: F401
-from app.models.db.execution import ExecutionModel  # noqa: F401
 
 config = context.config
 

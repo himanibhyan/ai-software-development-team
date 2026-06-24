@@ -66,9 +66,7 @@ class EventPublisher:
     async def agent_started(self, agent_type: str) -> None:
         await self.publish("agent_started", {"agent_type": agent_type})
 
-    async def agent_completed(
-        self, agent_type: str, duration_ms: int, token_usage: dict[str, int]
-    ) -> None:
+    async def agent_completed(self, agent_type: str, duration_ms: int, token_usage: dict[str, int]) -> None:
         await self.publish(
             "agent_completed",
             {
@@ -79,13 +77,9 @@ class EventPublisher:
         )
 
     async def agent_error(self, agent_type: str, error: str) -> None:
-        await self.publish(
-            "agent_error", {"agent_type": agent_type, "error": error}
-        )
+        await self.publish("agent_error", {"agent_type": agent_type, "error": error})
 
-    async def artifact_generated(
-        self, artifact_type: str, preview: str
-    ) -> None:
+    async def artifact_generated(self, artifact_type: str, preview: str) -> None:
         await self.publish(
             "artifact_generated",
             {"artifact_type": artifact_type, "preview": preview[:200]},

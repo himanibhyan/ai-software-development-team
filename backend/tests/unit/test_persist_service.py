@@ -94,7 +94,7 @@ class TestPersistService:
     @patch(STORAGE_PATH)
     async def test_persist_agent_output_uses_default_revision(
         self,
-        mock_storage,
+        _mock_storage,
         persist_service,
         mock_project_repo,
         mock_artifact_repo,
@@ -170,7 +170,7 @@ class TestPersistService:
     @patch(STORAGE_PATH)
     async def test_finalize_project_failed(
         self,
-        mock_storage,
+        _mock_storage,
         persist_service,
         mock_project_repo,
         sample_project_id,
@@ -190,7 +190,7 @@ class TestPersistService:
     @patch(STORAGE_PATH)
     async def test_finalize_project_failed_when_errors_none(
         self,
-        mock_storage,
+        _mock_storage,
         persist_service,
         mock_project_repo,
         sample_project_id,

@@ -39,11 +39,19 @@ prod = ["gunicorn>=22.0.0"]
 
 [tool.ruff]
 target-version = "py312"
-line-length = 100
+line-length = 120
 indent-width = 4
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "ARG"]
+ignore = ["B008", "N818"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/agents/prompts/*" = ["E501"]
+"tests/conftest.py" = ["E501"]
+"tests/unit/test_artifact_models.py" = ["E501"]
+"tests/unit/test_requirements_agent.py" = ["E501"]
+"tests/unit/test_architect_agent.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"

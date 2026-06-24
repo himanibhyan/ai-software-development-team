@@ -3,7 +3,6 @@ from __future__ import annotations
 import uvicorn
 
 from app.config import settings
-from app.server import app
 
 
 def main() -> None:

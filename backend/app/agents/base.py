@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
@@ -40,26 +40,21 @@ class BaseAgent(ABC):
 
     @property
     @abstractmethod
-    def agent_type(self) -> AgentType:
-        ...
+    def agent_type(self) -> AgentType: ...
 
     @property
     @abstractmethod
-    def system_prompt(self) -> str:
-        ...
+    def system_prompt(self) -> str: ...
 
     @property
     @abstractmethod
-    def output_model(self) -> type[BaseModel]:
-        ...
+    def output_model(self) -> type[BaseModel]: ...
 
     def build_user_prompt(self, state: GraphState) -> str:
         """Build the user prompt from current state context."""
         context_parts = [f"## Software Idea\n{state['idea']}"]
         if state.get("constraints"):
-            context_parts.append(
-                f"## Constraints\n{state['constraints']}"
-            )
+            context_parts.append(f"## Constraints\n{state['constraints']}")
         return "\n\n".join(context_parts)
 
     async def process(self, state: GraphState) -> dict[str, Any]:
@@ -79,8 +74,6 @@ class BaseAgent(ABC):
             agent_type=self.agent_type.value,
             project_id=state["project_id"],
         )
-
-        last_error: Optional[Exception] = None
 
         for attempt in range(self.max_retries + 1):
             try:
@@ -105,7 +98,6 @@ class BaseAgent(ABC):
                 return updates
 
             except (ValidationError, ValueError) as e:
-                last_error = e
                 logger.warning(
                     "agent_validation_error",
                     agent_type=self.agent_type.value,
@@ -121,7 +113,6 @@ class BaseAgent(ABC):
                 ) from e
 
             except Exception as e:
-                last_error = e
                 logger.error(
                     "agent_execution_error",
                     agent_type=self.agent_type.value,

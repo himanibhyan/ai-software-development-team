@@ -113,8 +113,10 @@ class TestValidateOutput:
 class TestSanitizeOutput:
     def test_strips_whitespace(self, agent: DocumentationAgent):
         doc = Documentation(
-            readme="  # Project  ", setup_guide="  ## Setup  ",
-            api_docs="  API docs  ", architecture_overview="  Arch  ",
+            readme="  # Project  ",
+            setup_guide="  ## Setup  ",
+            api_docs="  API docs  ",
+            architecture_overview="  Arch  ",
             contributing_guide="  Contrib  ",
         )
         result = agent._sanitize_output(doc)
@@ -127,7 +129,8 @@ class TestBuildStateUpdates:
     def test_includes_sanitized_output(self, agent: DocumentationAgent):
         state = _make_state()
         doc = Documentation(
-            readme="  # Project  ", setup_guide="  ## Setup  ",
+            readme="  # Project  ",
+            setup_guide="  ## Setup  ",
             api_docs="  API docs  ",
         )
         updates = agent._build_state_updates(state, doc, {"prompt_tokens": 5, "completion_tokens": 3})

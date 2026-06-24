@@ -13,8 +13,9 @@ celery_app = Celery(
     include=["app.worker.tasks"],
 )
 
+
 @signals.worker_process_init.connect
-def init_worker_process(**kwargs):
+def init_worker_process(**_kwargs):
     """Initialize LLM service and agent registry once per worker process."""
     from app.agents.registry import init_registry
     from app.services.llm_service import llm_service

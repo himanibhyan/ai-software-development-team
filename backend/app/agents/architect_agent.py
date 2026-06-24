@@ -9,29 +9,52 @@ from app.core.logging import get_logger
 from app.graph.state import GraphState
 from app.models.domain.enums import AgentType
 from app.models.domain.project import (
-    APISpec,
     APIEndpoint,
+    APISpec,
     ArchitectureDoc,
     ComponentSpec,
     DatabaseDesign,
     DatabaseTable,
-    FolderStructure,
     FolderEntry,
+    FolderStructure,
 )
 
 logger = get_logger(__name__)
 
 ARCHITECTURE_PATTERNS = {
-    "microservices", "layered", "event-driven", "hexagonal",
-    "cqrs", "serverless", "modular monolith", "clean architecture",
-    "domain-driven design", "pipeline", "broker", "client-server",
-    "peer-to-peer", "space-based", "blackboard", "interpreter",
-    "mvc", "mvvm", "soa", "n-tier",
+    "microservices",
+    "layered",
+    "event-driven",
+    "hexagonal",
+    "cqrs",
+    "serverless",
+    "modular monolith",
+    "clean architecture",
+    "domain-driven design",
+    "pipeline",
+    "broker",
+    "client-server",
+    "peer-to-peer",
+    "space-based",
+    "blackboard",
+    "interpreter",
+    "mvc",
+    "mvvm",
+    "soa",
+    "n-tier",
 }
 
 VAGUE_TECH_TERMS = {
-    "some database", "a cache", "cloud", "modern", "latest", "fast",
-    "appropriate", "suitable", "standard", "industry-standard",
+    "some database",
+    "a cache",
+    "cloud",
+    "modern",
+    "latest",
+    "fast",
+    "appropriate",
+    "suitable",
+    "standard",
+    "industry-standard",
 }
 
 
@@ -143,7 +166,7 @@ class ArchitectAgent(BaseAgent):
 
         # ── Component checks ─────────────────────────────────────
         component_names = set()
-        for i, comp in enumerate(output.components):
+        for _i, comp in enumerate(output.components):
             name_lower = comp.name.lower()
             if name_lower in component_names:
                 errors.append(f"Duplicate component name: '{comp.name}'")
@@ -151,20 +174,14 @@ class ArchitectAgent(BaseAgent):
 
             if len(comp.responsibilities) < 2:
                 errors.append(
-                    f"Component '{comp.name}' has only {len(comp.responsibilities)} "
-                    f"responsibilities (minimum 2)"
+                    f"Component '{comp.name}' has only {len(comp.responsibilities)} responsibilities (minimum 2)"
                 )
 
             # Check for vague technology
             if comp.technology.lower() in VAGUE_TECH_TERMS:
-                errors.append(
-                    f"Component '{comp.name}' has vague technology: '{comp.technology}'"
-                )
+                errors.append(f"Component '{comp.name}' has vague technology: '{comp.technology}'")
             elif not re.match(r".+[\d.]+", comp.technology) and len(comp.technology) < 5:
-                errors.append(
-                    f"Component '{comp.name}' technology '{comp.technology}' "
-                    f"lacks version indication"
-                )
+                errors.append(f"Component '{comp.name}' technology '{comp.technology}' lacks version indication")
 
             # Check for self-dependency
             deps_lower = [d.lower() for d in comp.dependencies]
@@ -203,7 +220,7 @@ class ArchitectAgent(BaseAgent):
 
         # ── Tech stack quality check ────────────────────────────
         required_categories = {"language", "framework", "database"}
-        actual_categories = set(k.lower() for k in output.tech_stack.keys())
+        actual_categories = set(k.lower() for k in output.tech_stack)
         missing_cats = required_categories - actual_categories
         if missing_cats:
             errors.append(f"Missing required tech stack categories: {', '.join(sorted(missing_cats))}")
@@ -216,21 +233,17 @@ class ArchitectAgent(BaseAgent):
         if output.database_design:
             db = output.database_design
             if len(db.tables) < 2:
-                errors.append(
-                    f"Too few database tables: {len(db.tables)} (minimum 2)"
-                )
+                errors.append(f"Too few database tables: {len(db.tables)} (minimum 2)")
 
             table_names = set()
-            for i, table in enumerate(db.tables):
+            for _i, table in enumerate(db.tables):
                 tname_lower = table.name.lower()
                 if tname_lower in table_names:
                     errors.append(f"Duplicate table name: '{table.name}'")
                 table_names.add(tname_lower)
 
                 if len(table.columns) < 2:
-                    errors.append(
-                        f"Table '{table.name}' has only {len(table.columns)} columns (minimum 2)"
-                    )
+                    errors.append(f"Table '{table.name}' has only {len(table.columns)} columns (minimum 2)")
 
                 has_pk = any(
                     "primary key" in col.get("constraints", "").lower()
@@ -243,17 +256,13 @@ class ArchitectAgent(BaseAgent):
                 # Check for proper column structure
                 for j, col in enumerate(table.columns):
                     if not isinstance(col, dict) or "name" not in col or "type" not in col:
-                        errors.append(
-                            f"Table '{table.name}' column at index {j} missing 'name' or 'type'"
-                        )
+                        errors.append(f"Table '{table.name}' column at index {j} missing 'name' or 'type'")
 
         # ── API spec checks ─────────────────────────────────────
         if output.api_spec:
             api = output.api_spec
             if len(api.endpoints) < 3:
-                errors.append(
-                    f"Too few API endpoints: {len(api.endpoints)} (minimum 3)"
-                )
+                errors.append(f"Too few API endpoints: {len(api.endpoints)} (minimum 3)")
 
             for i, ep in enumerate(api.endpoints):
                 if not ep.path.startswith("/"):
@@ -261,9 +270,7 @@ class ArchitectAgent(BaseAgent):
                 if ep.method not in ("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"):
                     errors.append(f"API endpoint at index {i} has invalid method: '{ep.method}'")
                 if len(ep.description) < 5:
-                    errors.append(
-                        f"API endpoint '{ep.method} {ep.path}' description too short"
-                    )
+                    errors.append(f"API endpoint '{ep.method} {ep.path}' description too short")
 
         # ── Folder structure checks ─────────────────────────────
         if output.folder_structure:
@@ -278,9 +285,8 @@ class ArchitectAgent(BaseAgent):
             errors.append("Deployment strategy is too short (minimum 20 characters)")
 
         # ── Mermaid diagram check ───────────────────────────────
-        if output.diagram_mermaid:
-            if not output.diagram_mermaid.strip().startswith("graph"):
-                errors.append("Mermaid diagram should start with 'graph' directive")
+        if output.diagram_mermaid and not output.diagram_mermaid.strip().startswith("graph"):
+            errors.append("Mermaid diagram should start with 'graph' directive")
 
         # ── Raise if errors found ───────────────────────────────
         if errors:
@@ -291,9 +297,7 @@ class ArchitectAgent(BaseAgent):
                 component_count=comp_count,
                 tech_count=tech_count,
             )
-            raise ValueError(
-                f"Architecture validation failed with {len(errors)} issue(s):\n{error_summary}"
-            )
+            raise ValueError(f"Architecture validation failed with {len(errors)} issue(s):\n{error_summary}")
 
         return output
 
@@ -306,10 +310,7 @@ class ArchitectAgent(BaseAgent):
                 technology=comp.technology.strip(),
                 responsibilities=[r.strip() for r in comp.responsibilities],
                 dependencies=[d.strip() for d in comp.dependencies],
-                api_endpoints=[
-                    {k.strip(): v.strip() for k, v in ep.items()}
-                    for ep in comp.api_endpoints
-                ],
+                api_endpoints=[{k.strip(): v.strip() for k, v in ep.items()} for ep in comp.api_endpoints],
             )
             for comp in output.components
         ]
@@ -322,10 +323,7 @@ class ArchitectAgent(BaseAgent):
             for i, step in enumerate(output.data_flow)
         ]
 
-        tech_stack = {
-            k.strip(): v.strip()
-            for k, v in output.tech_stack.items()
-        }
+        tech_stack = {k.strip(): v.strip() for k, v in output.tech_stack.items()}
 
         security = [s.strip() for s in output.security_considerations]
 
@@ -351,10 +349,18 @@ class ArchitectAgent(BaseAgent):
                 engine=output.database_design.engine.strip(),
                 tables=tables,
                 orm=output.database_design.orm.strip() if output.database_design.orm else None,
-                migration_tool=output.database_design.migration_tool.strip() if output.database_design.migration_tool else None,
-                caching_strategy=output.database_design.caching_strategy.strip() if output.database_design.caching_strategy else None,
-                sharding_strategy=output.database_design.sharding_strategy.strip() if output.database_design.sharding_strategy else None,
-                backup_strategy=output.database_design.backup_strategy.strip() if output.database_design.backup_strategy else None,
+                migration_tool=output.database_design.migration_tool.strip()
+                if output.database_design.migration_tool
+                else None,
+                caching_strategy=output.database_design.caching_strategy.strip()
+                if output.database_design.caching_strategy
+                else None,
+                sharding_strategy=output.database_design.sharding_strategy.strip()
+                if output.database_design.sharding_strategy
+                else None,
+                backup_strategy=output.database_design.backup_strategy.strip()
+                if output.database_design.backup_strategy
+                else None,
             )
 
         api_spec = None
@@ -377,11 +383,14 @@ class ArchitectAgent(BaseAgent):
                 endpoints=endpoints,
                 auth_method=output.api_spec.auth_method.strip(),
                 rate_limiting=output.api_spec.rate_limiting.strip() if output.api_spec.rate_limiting else None,
-                versioning_strategy=output.api_spec.versioning_strategy.strip() if output.api_spec.versioning_strategy else None,
+                versioning_strategy=output.api_spec.versioning_strategy.strip()
+                if output.api_spec.versioning_strategy
+                else None,
             )
 
         folder_structure = None
         if output.folder_structure:
+
             def _clean_entries(entries):
                 return [
                     FolderEntry(
@@ -392,6 +401,7 @@ class ArchitectAgent(BaseAgent):
                     )
                     for e in entries
                 ]
+
             folder_structure = FolderStructure(
                 root=output.folder_structure.root.strip(),
                 entries=_clean_entries(output.folder_structure.entries),

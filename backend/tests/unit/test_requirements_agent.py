@@ -23,25 +23,85 @@ class TestRequirementsDocSchema:
             purpose="This is a test project to validate the schema with sufficient detail.",
             scope="In-scope: testing. Out-of-scope: production deployment.",
             functional_requirements=[
-                FunctionalRequirement(id="FR-01", description="Users shall be able to register and log in using email and password.", priority="P0"),
-                FunctionalRequirement(id="FR-02", description="Users shall be able to create, read, update, and delete their profile information.", priority="P0"),
-                FunctionalRequirement(id="FR-03", description="The system shall validate all user input before processing requests.", priority="P0"),
-                FunctionalRequirement(id="FR-04", description="Users shall be able to search for items by keyword, category, and price range.", priority="P1"),
-                FunctionalRequirement(id="FR-05", description="The system shall paginate search results with a configurable page size.", priority="P1"),
-                FunctionalRequirement(id="FR-06", description="Users shall be able to add items to a shopping cart and proceed to checkout.", priority="P0"),
-                FunctionalRequirement(id="FR-07", description="The system shall process payments through a third-party payment gateway.", priority="P0"),
-                FunctionalRequirement(id="FR-08", description="The system shall send email notifications for order confirmations and status updates.", priority="P1"),
+                FunctionalRequirement(
+                    id="FR-01",
+                    description="Users shall be able to register and log in using email and password.",
+                    priority="P0",
+                ),
+                FunctionalRequirement(
+                    id="FR-02",
+                    description="Users shall be able to create, read, update, and delete their profile information.",
+                    priority="P0",
+                ),
+                FunctionalRequirement(
+                    id="FR-03",
+                    description="The system shall validate all user input before processing requests.",
+                    priority="P0",
+                ),
+                FunctionalRequirement(
+                    id="FR-04",
+                    description="Users shall be able to search for items by keyword, category, and price range.",
+                    priority="P1",
+                ),
+                FunctionalRequirement(
+                    id="FR-05",
+                    description="The system shall paginate search results with a configurable page size.",
+                    priority="P1",
+                ),
+                FunctionalRequirement(
+                    id="FR-06",
+                    description="Users shall be able to add items to a shopping cart and proceed to checkout.",
+                    priority="P0",
+                ),
+                FunctionalRequirement(
+                    id="FR-07",
+                    description="The system shall process payments through a third-party payment gateway.",
+                    priority="P0",
+                ),
+                FunctionalRequirement(
+                    id="FR-08",
+                    description="The system shall send email notifications for order confirmations and status updates.",
+                    priority="P1",
+                ),
             ],
             non_functional_requirements=[
-                NonFunctionalRequirement(id="NFR-01", description="All API responses shall complete within 300ms at the 95th percentile under normal load.", category="performance"),
-                NonFunctionalRequirement(id="NFR-02", description="All user passwords shall be hashed using bcrypt with a cost factor of 12.", category="security"),
-                NonFunctionalRequirement(id="NFR-03", description="The web interface shall be usable on screens as small as 320px wide.", category="usability"),
-                NonFunctionalRequirement(id="NFR-04", description="The system shall maintain 99.9% uptime measured monthly.", category="availability"),
+                NonFunctionalRequirement(
+                    id="NFR-01",
+                    description="All API responses shall complete within 300ms at the 95th percentile under normal load.",
+                    category="performance",
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-02",
+                    description="All user passwords shall be hashed using bcrypt with a cost factor of 12.",
+                    category="security",
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-03",
+                    description="The web interface shall be usable on screens as small as 320px wide.",
+                    category="usability",
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-04",
+                    description="The system shall maintain 99.9% uptime measured monthly.",
+                    category="availability",
+                ),
             ],
             user_stories=[
-                UserStory(id="US-01", description="As a new user, I want to create an account with my email so that I can access personalized features.", priority="P0"),
-                UserStory(id="US-02", description="As a returning user, I want to log in quickly so that I can continue where I left off.", priority="P0"),
-                UserStory(id="US-03", description="As an admin, I want to view usage analytics so that I can understand user behavior.", priority="P1"),
+                UserStory(
+                    id="US-01",
+                    description="As a new user, I want to create an account with my email so that I can access personalized features.",
+                    priority="P0",
+                ),
+                UserStory(
+                    id="US-02",
+                    description="As a returning user, I want to log in quickly so that I can continue where I left off.",
+                    priority="P0",
+                ),
+                UserStory(
+                    id="US-03",
+                    description="As an admin, I want to view usage analytics so that I can understand user behavior.",
+                    priority="P1",
+                ),
             ],
             constraints=["Must use Python 3.12+", "Must deploy on AWS infrastructure"],
             assumptions=["Users have reliable internet access", "Email delivery service is available"],
@@ -62,7 +122,9 @@ class TestRequirementsDocSchema:
 
     def test_nfr_invalid_category(self):
         with pytest.raises(ValidationError):
-            NonFunctionalRequirement(id="NFR-01", description="Valid description that is long enough for the field.", category="invalid")
+            NonFunctionalRequirement(
+                id="NFR-01", description="Valid description that is long enough for the field.", category="invalid"
+            )
 
     def test_us_wrong_id_format(self):
         with pytest.raises(ValidationError):
@@ -74,25 +136,55 @@ class TestRequirementsDocSchema:
             purpose="A test purpose that is long enough to pass validation.",
             scope="The scope is also long enough to pass validation checks easily.",
             functional_requirements=[
-                FunctionalRequirement(id="FR-01", description="First functional requirement description.", priority="P0"),
-                FunctionalRequirement(id="FR-02", description="Second functional requirement description.", priority="P0"),
-                FunctionalRequirement(id="FR-03", description="Third functional requirement description.", priority="P0"),
-                FunctionalRequirement(id="FR-04", description="Fourth functional requirement description.", priority="P1"),
-                FunctionalRequirement(id="FR-05", description="Fifth functional requirement description.", priority="P1"),
-                FunctionalRequirement(id="FR-06", description="Sixth functional requirement description.", priority="P0"),
-                FunctionalRequirement(id="FR-07", description="Seventh functional requirement description.", priority="P0"),
-                FunctionalRequirement(id="FR-08", description="Eighth functional requirement description.", priority="P1"),
+                FunctionalRequirement(
+                    id="FR-01", description="First functional requirement description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-02", description="Second functional requirement description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-03", description="Third functional requirement description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-04", description="Fourth functional requirement description.", priority="P1"
+                ),
+                FunctionalRequirement(
+                    id="FR-05", description="Fifth functional requirement description.", priority="P1"
+                ),
+                FunctionalRequirement(
+                    id="FR-06", description="Sixth functional requirement description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-07", description="Seventh functional requirement description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-08", description="Eighth functional requirement description.", priority="P1"
+                ),
             ],
             non_functional_requirements=[
-                NonFunctionalRequirement(id="NFR-01", description="Performance: APIs respond under 300ms.", category="performance"),
-                NonFunctionalRequirement(id="NFR-02", description="Security: All data encrypted at rest.", category="security"),
-                NonFunctionalRequirement(id="NFR-03", description="Usability: Works on all screen sizes.", category="usability"),
-                NonFunctionalRequirement(id="NFR-04", description="Availability: 99.9% uptime SLA.", category="availability"),
+                NonFunctionalRequirement(
+                    id="NFR-01", description="Performance: APIs respond under 300ms.", category="performance"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-02", description="Security: All data encrypted at rest.", category="security"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-03", description="Usability: Works on all screen sizes.", category="usability"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-04", description="Availability: 99.9% uptime SLA.", category="availability"
+                ),
             ],
             user_stories=[
-                UserStory(id="US-01", description="As a user, I want to login so that I can access my account.", priority="P0"),
-                UserStory(id="US-02", description="As a user, I want to search so that I find what I need.", priority="P1"),
-                UserStory(id="US-03", description="As an admin, I want reports so that I understand usage.", priority="P1"),
+                UserStory(
+                    id="US-01", description="As a user, I want to login so that I can access my account.", priority="P0"
+                ),
+                UserStory(
+                    id="US-02", description="As a user, I want to search so that I find what I need.", priority="P1"
+                ),
+                UserStory(
+                    id="US-03", description="As an admin, I want reports so that I understand usage.", priority="P1"
+                ),
             ],
             constraints=["Constraint 1"],
             assumptions=["Assumption 1"],
@@ -109,25 +201,55 @@ class TestRequirementsDocSchema:
             purpose="A test purpose that is long enough to pass validation.",
             scope="The scope is also long enough to pass validation checks easily.",
             functional_requirements=[
-                FunctionalRequirement(id="FR-01", description="First functional requirement description.", priority="P0"),
-                FunctionalRequirement(id="FR-02", description="Second functional requirement description.", priority="P0"),
-                FunctionalRequirement(id="FR-03", description="Third functional requirement description.", priority="P0"),
-                FunctionalRequirement(id="FR-04", description="Fourth functional requirement description.", priority="P1"),
-                FunctionalRequirement(id="FR-05", description="Fifth functional requirement description.", priority="P1"),
-                FunctionalRequirement(id="FR-06", description="Sixth functional requirement description.", priority="P0"),
-                FunctionalRequirement(id="FR-07", description="Seventh functional requirement description.", priority="P0"),
-                FunctionalRequirement(id="FR-08", description="Eighth functional requirement description.", priority="P1"),
+                FunctionalRequirement(
+                    id="FR-01", description="First functional requirement description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-02", description="Second functional requirement description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-03", description="Third functional requirement description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-04", description="Fourth functional requirement description.", priority="P1"
+                ),
+                FunctionalRequirement(
+                    id="FR-05", description="Fifth functional requirement description.", priority="P1"
+                ),
+                FunctionalRequirement(
+                    id="FR-06", description="Sixth functional requirement description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-07", description="Seventh functional requirement description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-08", description="Eighth functional requirement description.", priority="P1"
+                ),
             ],
             non_functional_requirements=[
-                NonFunctionalRequirement(id="NFR-01", description="Performance: APIs respond under 300ms.", category="performance"),
-                NonFunctionalRequirement(id="NFR-02", description="Security: All data encrypted at rest.", category="security"),
-                NonFunctionalRequirement(id="NFR-03", description="Usability: Works on all screen sizes.", category="usability"),
-                NonFunctionalRequirement(id="NFR-04", description="Availability: 99.9% uptime SLA.", category="availability"),
+                NonFunctionalRequirement(
+                    id="NFR-01", description="Performance: APIs respond under 300ms.", category="performance"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-02", description="Security: All data encrypted at rest.", category="security"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-03", description="Usability: Works on all screen sizes.", category="usability"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-04", description="Availability: 99.9% uptime SLA.", category="availability"
+                ),
             ],
             user_stories=[
-                UserStory(id="US-01", description="As a user, I want to login so that I can access my account.", priority="P0"),
-                UserStory(id="US-02", description="As a user, I want to search so that I find what I need.", priority="P1"),
-                UserStory(id="US-03", description="As an admin, I want reports so that I understand usage.", priority="P1"),
+                UserStory(
+                    id="US-01", description="As a user, I want to login so that I can access my account.", priority="P0"
+                ),
+                UserStory(
+                    id="US-02", description="As a user, I want to search so that I find what I need.", priority="P1"
+                ),
+                UserStory(
+                    id="US-03", description="As an admin, I want reports so that I understand usage.", priority="P1"
+                ),
             ],
             constraints=["C1"],
             assumptions=["A1"],
@@ -175,15 +297,27 @@ class TestRequirementsAgent:
     def test_validate_output_passes_valid_doc(self):
         agent = RequirementsAgent(llm_service=None)
         frs = [
-            FunctionalRequirement(id=f"FR-{i:02d}", description=f"Functional requirement number {i} that is long enough to be valid.", priority="P0" if i < 5 else "P1")
+            FunctionalRequirement(
+                id=f"FR-{i:02d}",
+                description=f"Functional requirement number {i} that is long enough to be valid.",
+                priority="P0" if i < 5 else "P1",
+            )
             for i in range(1, 11)
         ]
         nfrs = [
-            NonFunctionalRequirement(id=f"NFR-{i:02d}", description=f"Non-functional requirement {i} with enough description to be valid.", category=c)
+            NonFunctionalRequirement(
+                id=f"NFR-{i:02d}",
+                description=f"Non-functional requirement {i} with enough description to be valid.",
+                category=c,
+            )
             for i, c in enumerate(["performance", "security", "usability", "reliability", "scalability"], 1)
         ]
         uss = [
-            UserStory(id=f"US-{i:02d}", description=f"As a user, I want feature {i}, so that I can accomplish my goals.", priority="P0")
+            UserStory(
+                id=f"US-{i:02d}",
+                description=f"As a user, I want feature {i}, so that I can accomplish my goals.",
+                priority="P0",
+            )
             for i in range(1, 4)
         ]
         doc = RequirementsDoc(
@@ -204,11 +338,15 @@ class TestRequirementsAgent:
     def test_validate_output_rejects_short_frs(self):
         agent = RequirementsAgent(llm_service=None)
         frs = [
-            FunctionalRequirement(id=f"FR-{i:02d}", description=f"Functional requirement {i} that is long enough to pass.", priority="P0")
+            FunctionalRequirement(
+                id=f"FR-{i:02d}", description=f"Functional requirement {i} that is long enough to pass.", priority="P0"
+            )
             for i in range(1, 6)
         ]
         nfrs = [
-            NonFunctionalRequirement(id=f"NFR-{i:02d}", description=f"NFR {i} with enough text to be valid here.", category="security")
+            NonFunctionalRequirement(
+                id=f"NFR-{i:02d}", description=f"NFR {i} with enough text to be valid here.", category="security"
+            )
             for i in range(1, 4)
         ]
         uss = [
@@ -231,15 +369,27 @@ class TestRequirementsAgent:
     def test_validate_output_rejects_vague_terms(self):
         agent = RequirementsAgent(llm_service=None)
         frs = [
-            FunctionalRequirement(id=f"FR-{i:02d}", description=f"System should be user-friendly and fast for requirement {i}.", priority="P0" if i < 4 else "P1")
+            FunctionalRequirement(
+                id=f"FR-{i:02d}",
+                description=f"System should be user-friendly and fast for requirement {i}.",
+                priority="P0" if i < 4 else "P1",
+            )
             for i in range(1, 11)
         ]
         nfrs = [
-            NonFunctionalRequirement(id=f"NFR-{i:02d}", description=f"Non-functional requirement {i} with enough description to be valid.", category=c)
+            NonFunctionalRequirement(
+                id=f"NFR-{i:02d}",
+                description=f"Non-functional requirement {i} with enough description to be valid.",
+                category=c,
+            )
             for i, c in enumerate(["performance", "security", "usability", "reliability", "scalability"], 1)
         ]
         uss = [
-            UserStory(id=f"US-{i:02d}", description=f"As a user, I want feature {i} so that I can accomplish my goals.", priority="P0")
+            UserStory(
+                id=f"US-{i:02d}",
+                description=f"As a user, I want feature {i} so that I can accomplish my goals.",
+                priority="P0",
+            )
             for i in range(1, 4)
         ]
         doc = RequirementsDoc(
@@ -258,16 +408,28 @@ class TestRequirementsAgent:
     def test_validate_output_rejects_missing_security_nfr(self):
         agent = RequirementsAgent(llm_service=None)
         frs = [
-            FunctionalRequirement(id=f"FR-{i:02d}", description=f"Functional requirement number {i} that is long enough to be valid.", priority="P0" if i < 4 else "P1")
+            FunctionalRequirement(
+                id=f"FR-{i:02d}",
+                description=f"Functional requirement number {i} that is long enough to be valid.",
+                priority="P0" if i < 4 else "P1",
+            )
             for i in range(1, 11)
         ]
         # Only performance, no security
         nfrs = [
-            NonFunctionalRequirement(id=f"NFR-{i:02d}", description=f"NFR {i} with enough description text to be valid here.", category="performance")
+            NonFunctionalRequirement(
+                id=f"NFR-{i:02d}",
+                description=f"NFR {i} with enough description text to be valid here.",
+                category="performance",
+            )
             for i in range(1, 5)
         ]
         uss = [
-            UserStory(id=f"US-{i:02d}", description=f"As a user, I want feature {i} so that I can accomplish my goals.", priority="P0")
+            UserStory(
+                id=f"US-{i:02d}",
+                description=f"As a user, I want feature {i} so that I can accomplish my goals.",
+                priority="P0",
+            )
             for i in range(1, 4)
         ]
         doc = RequirementsDoc(
@@ -286,11 +448,17 @@ class TestRequirementsAgent:
     def test_validate_output_rejects_bad_us_format(self):
         agent = RequirementsAgent(llm_service=None)
         frs = [
-            FunctionalRequirement(id=f"FR-{i:02d}", description=f"Functional requirement number {i} that is long enough to be valid.", priority="P0" if i < 4 else "P1")
+            FunctionalRequirement(
+                id=f"FR-{i:02d}",
+                description=f"Functional requirement number {i} that is long enough to be valid.",
+                priority="P0" if i < 4 else "P1",
+            )
             for i in range(1, 11)
         ]
         nfrs = [
-            NonFunctionalRequirement(id=f"NFR-{i:02d}", description=f"NFR {i} with enough detail to be valid here.", category=c)
+            NonFunctionalRequirement(
+                id=f"NFR-{i:02d}", description=f"NFR {i} with enough detail to be valid here.", category=c
+            )
             for i, c in enumerate(["performance", "security", "usability", "reliability"], 1)
         ]
         # Bad format: missing "so that"
@@ -321,26 +489,62 @@ class TestRequirementsAgent:
             functional_requirements=[
                 FunctionalRequirement(id="FR-01", description="  Spaces around text  ", priority="P0"),
                 FunctionalRequirement(id="FR-02", description="Another requirement description here.", priority="P1"),
-                FunctionalRequirement(id="FR-03", description="Third requirement with enough text here.", priority="P1"),
-                FunctionalRequirement(id="FR-04", description="Fourth requirement with enough text length.", priority="P0"),
-                FunctionalRequirement(id="FR-05", description="Fifth requirement that has enough text here.", priority="P2"),
-                FunctionalRequirement(id="FR-06", description="Sixth requirement with a valid description.", priority="P0"),
-                FunctionalRequirement(id="FR-07", description="Seventh requirement with a description text.", priority="P1"),
-                FunctionalRequirement(id="FR-08", description="Eighth requirement with enough description.", priority="P0"),
-                FunctionalRequirement(id="FR-09", description="Ninth requirement that is long enough here.", priority="P1"),
-                FunctionalRequirement(id="FR-10", description="Tenth requirement with enough text length.", priority="P0"),
+                FunctionalRequirement(
+                    id="FR-03", description="Third requirement with enough text here.", priority="P1"
+                ),
+                FunctionalRequirement(
+                    id="FR-04", description="Fourth requirement with enough text length.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-05", description="Fifth requirement that has enough text here.", priority="P2"
+                ),
+                FunctionalRequirement(
+                    id="FR-06", description="Sixth requirement with a valid description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-07", description="Seventh requirement with a description text.", priority="P1"
+                ),
+                FunctionalRequirement(
+                    id="FR-08", description="Eighth requirement with enough description.", priority="P0"
+                ),
+                FunctionalRequirement(
+                    id="FR-09", description="Ninth requirement that is long enough here.", priority="P1"
+                ),
+                FunctionalRequirement(
+                    id="FR-10", description="Tenth requirement with enough text length.", priority="P0"
+                ),
             ],
             non_functional_requirements=[
                 NonFunctionalRequirement(id="NFR-01", description="  Performance desc  ", category="performance"),
-                NonFunctionalRequirement(id="NFR-02", description="Security description with enough text.", category="security"),
-                NonFunctionalRequirement(id="NFR-03", description="Usability: screen reader support.", category="usability"),
-                NonFunctionalRequirement(id="NFR-04", description="Reliability: automatic failover.", category="reliability"),
-                NonFunctionalRequirement(id="NFR-05", description="Scalability: horizontal scaling.", category="scalability"),
+                NonFunctionalRequirement(
+                    id="NFR-02", description="Security description with enough text.", category="security"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-03", description="Usability: screen reader support.", category="usability"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-04", description="Reliability: automatic failover.", category="reliability"
+                ),
+                NonFunctionalRequirement(
+                    id="NFR-05", description="Scalability: horizontal scaling.", category="scalability"
+                ),
             ],
             user_stories=[
-                UserStory(id="US-01", description="  As a user, I want to trim spaces so that the data is clean.  ", priority="P0"),
-                UserStory(id="US-02", description="As a user, I want normalized priorities so that validation passes.", priority="P1"),
-                UserStory(id="US-03", description="As an admin, I want clean data so that reports are accurate.", priority="P2"),
+                UserStory(
+                    id="US-01",
+                    description="  As a user, I want to trim spaces so that the data is clean.  ",
+                    priority="P0",
+                ),
+                UserStory(
+                    id="US-02",
+                    description="As a user, I want normalized priorities so that validation passes.",
+                    priority="P1",
+                ),
+                UserStory(
+                    id="US-03",
+                    description="As an admin, I want clean data so that reports are accurate.",
+                    priority="P2",
+                ),
             ],
             constraints=["  Constraint 1  ", "Constraint 2", "  Constraint 1  "],
             assumptions=["  Assumption 1  ", "Assumption 2", "  Assumption 1  "],
@@ -359,15 +563,25 @@ class TestRequirementsAgent:
         agent = RequirementsAgent(llm_service=None)
         state = create_initial_state(idea=sample_idea)
         frs = [
-            FunctionalRequirement(id=f"FR-{i:02d}", description=f"Functional requirement number {i} that is long enough to pass validation.", priority="P0")
+            FunctionalRequirement(
+                id=f"FR-{i:02d}",
+                description=f"Functional requirement number {i} that is long enough to pass validation.",
+                priority="P0",
+            )
             for i in range(1, 11)
         ]
         nfrs = [
-            NonFunctionalRequirement(id=f"NFR-{i:02d}", description=f"NFR {i} with enough description text to pass.", category=c)
+            NonFunctionalRequirement(
+                id=f"NFR-{i:02d}", description=f"NFR {i} with enough description text to pass.", category=c
+            )
             for i, c in enumerate(["performance", "security", "usability", "reliability", "scalability"], 1)
         ]
         uss = [
-            UserStory(id=f"US-{i:02d}", description=f"As a user, I want feature {i} so that I can accomplish my goals.", priority="P0")
+            UserStory(
+                id=f"US-{i:02d}",
+                description=f"As a user, I want feature {i} so that I can accomplish my goals.",
+                priority="P0",
+            )
             for i in range(1, 4)
         ]
         output = RequirementsDoc(

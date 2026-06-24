@@ -1,16 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
 from app.models.domain.enums import ArtifactType
-
-
-def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
 from app.models.domain.project import (
     ArchitectureDoc,
     CodeReviewReport,
@@ -21,13 +17,17 @@ from app.models.domain.project import (
 )
 
 
+def _utcnow() -> datetime:
+    return datetime.now(UTC)
+
+
 class Artifact(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     project_id: UUID
     agent_type: str
     artifact_type: ArtifactType
     content: dict[str, Any]
-    markdown: Optional[str] = None
+    markdown: str | None = None
     revision: int = 1
     created_at: datetime = Field(default_factory=_utcnow)
 

@@ -277,8 +277,7 @@ async def export_project(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
-                f"Cannot export project with status '{project.status.value}'. "
-                "Only completed projects can be exported."
+                f"Cannot export project with status '{project.status.value}'. Only completed projects can be exported."
             ),
         )
 

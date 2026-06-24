@@ -41,19 +41,14 @@ class DocumentationAgent(BaseAgent):
         source_overview = ""
         if source:
             files = source.get("files", [])
-            file_list = "\n".join(
-                f"  - {f.get('path', 'unknown')} ({f.get('language', 'text')})"
-                for f in files
-            )
+            file_list = "\n".join(f"  - {f.get('path', 'unknown')} ({f.get('language', 'text')})" for f in files)
             source_overview = f"\n### Project Structure\n{file_list}"
 
         test_overview = ""
         if tests:
             tcs = tests.get("test_cases", [])
             test_overview = (
-                f"\n### Test Suite\n"
-                f"Framework: {tests.get('test_framework', 'N/A')}\n"
-                f"Test Cases: {len(tcs)}\n"
+                f"\n### Test Suite\nFramework: {tests.get('test_framework', 'N/A')}\nTest Cases: {len(tcs)}\n"
             )
 
         return (
@@ -92,9 +87,7 @@ class DocumentationAgent(BaseAgent):
                 "documentation_validation_errors",
                 error_count=len(errors),
             )
-            raise ValueError(
-                f"Documentation validation failed with {len(errors)} issue(s):\n{error_summary}"
-            )
+            raise ValueError(f"Documentation validation failed with {len(errors)} issue(s):\n{error_summary}")
 
         return output
 
@@ -121,7 +114,5 @@ class DocumentationAgent(BaseAgent):
             "revision": state["revision"] + 1,
         }
         if token_usage:
-            updates["token_usage"] = [
-                {"agent": self.agent_type.value, **token_usage}
-            ]
+            updates["token_usage"] = [{"agent": self.agent_type.value, **token_usage}]
         return updates

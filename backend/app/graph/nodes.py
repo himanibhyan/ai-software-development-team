@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.agents import registry as agent_registry_module
 from app.core.exceptions import AppException
@@ -65,7 +65,7 @@ def _save_step_checkpoint(state: GraphState, agent_name: str) -> None:
         )
 
         execution_log = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "agent": agent_name,
             "status": state.get("status", "unknown"),
             "revision": state.get("revision", 0),
@@ -291,7 +291,7 @@ async def validate_input_node(state: GraphState) -> dict:
 
 async def persistence_node(state: GraphState) -> dict:
     """Node: Final state — persist artifacts, save checkpoints, and mark complete."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     logger.info("node:persistence", project_id=state["project_id"])
 
@@ -309,7 +309,7 @@ async def persistence_node(state: GraphState) -> dict:
         storage_service.save_execution_log(
             state["project_id"],
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "agent": "persistence",
                 "status": "completed",
                 "revision": state.get("revision", 0),
@@ -336,7 +336,7 @@ async def persistence_node(state: GraphState) -> dict:
             "project_id": state["project_id"],
             "status": "completed",
             "revision": state.get("revision", 0),
-            "completed_at": datetime.now(timezone.utc).isoformat(),
+            "completed_at": datetime.now(UTC).isoformat(),
             "artifacts": {
                 k: v is not None
                 for k, v in state.items()
@@ -355,14 +355,12 @@ async def persistence_node(state: GraphState) -> dict:
             for k, v in state.items()
             if k in ("requirements", "architecture", "source_code", "test_suite", "documentation", "review_report")
         },
-        "total_tokens": sum(
-            t.get("total_tokens", 0) for t in state.get("token_usage", [])
-        ),
+        "total_tokens": sum(t.get("total_tokens", 0) for t in state.get("token_usage", [])),
     }
 
     return {
         "status": "completed",
-        "end_time": datetime.now(timezone.utc).isoformat(),
+        "end_time": datetime.now(UTC).isoformat(),
         "current_agent": None,
         "agent_results": [summary],
         "revision": state["revision"] + 1,
@@ -371,7 +369,7 @@ async def persistence_node(state: GraphState) -> dict:
 
 async def error_node(state: GraphState) -> dict:
     """Node: Handle unrecoverable pipeline errors."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     logger.error(
         "node:error_handler",
@@ -381,7 +379,7 @@ async def error_node(state: GraphState) -> dict:
 
     return {
         "status": "failed",
-        "end_time": datetime.now(timezone.utc).isoformat(),
+        "end_time": datetime.now(UTC).isoformat(),
         "current_agent": None,
         "revision": state["revision"] + 1,
     }

@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint
-from sqlalchemy.dialects.postgresql import JSONB, UUID as UUIDType
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as UUIDType  # noqa: N811
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin, UUIDMixin
-from app.models.domain.enums import AgentType, ArtifactType
 
 if TYPE_CHECKING:
     from app.models.db.project import ProjectModel
@@ -17,9 +17,7 @@ if TYPE_CHECKING:
 class ArtifactModel(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "project_artifacts"
 
-    __table_args__ = (
-        UniqueConstraint("project_id", "agent_type", "revision", name="uq_artifact_revision"),
-    )
+    __table_args__ = (UniqueConstraint("project_id", "agent_type", "revision", name="uq_artifact_revision"),)
 
     project_id: Mapped[UUID] = mapped_column(
         UUIDType(as_uuid=True),

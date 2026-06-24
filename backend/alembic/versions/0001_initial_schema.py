@@ -10,18 +10,20 @@ Revision ID: 0001_initial_schema
 Revises: None
 Create Date: 2026-06-06 12:45:00.000000
 """
+
 from __future__ import annotations
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
+from alembic import op
+
 revision: str = "0001_initial_schema"
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -46,7 +48,11 @@ def upgrade() -> None:
         sa.Column(
             "status",
             sa.Enum(
-                "pending", "running", "completed", "failed", "refining",
+                "pending",
+                "running",
+                "completed",
+                "failed",
+                "refining",
                 name="project_status",
                 create_constraint=True,
             ),
@@ -84,13 +90,16 @@ def upgrade() -> None:
         sa.Column("markdown", sa.Text(), nullable=True),
         sa.Column("revision", sa.Integer(), nullable=False, server_default=sa.text("1")),
         sa.ForeignKeyConstraint(
-            ["project_id"], ["projects.id"],
+            ["project_id"],
+            ["projects.id"],
             name="fk_artifacts_project",
             ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
-            "project_id", "agent_type", "revision",
+            "project_id",
+            "agent_type",
+            "revision",
             name="uq_artifact_revision",
         ),
     )
@@ -105,27 +114,35 @@ def upgrade() -> None:
         sa.Column("project_id", sa.Uuid(), nullable=False),
         sa.Column("agent_type", sa.String(length=50), nullable=False),
         sa.Column(
-            "status", sa.String(length=20),
+            "status",
+            sa.String(length=20),
             nullable=False,
             server_default=sa.text("'pending'"),
         ),
         sa.Column(
-            "input_tokens", sa.Integer(),
-            nullable=False, server_default=sa.text("0"),
+            "input_tokens",
+            sa.Integer(),
+            nullable=False,
+            server_default=sa.text("0"),
         ),
         sa.Column(
-            "output_tokens", sa.Integer(),
-            nullable=False, server_default=sa.text("0"),
+            "output_tokens",
+            sa.Integer(),
+            nullable=False,
+            server_default=sa.text("0"),
         ),
         sa.Column(
-            "duration_ms", sa.Integer(),
-            nullable=False, server_default=sa.text("0"),
+            "duration_ms",
+            sa.Integer(),
+            nullable=False,
+            server_default=sa.text("0"),
         ),
         sa.Column("error", postgresql.JSONB(), nullable=True),
         sa.Column("started_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("ended_at", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(
-            ["project_id"], ["projects.id"],
+            ["project_id"],
+            ["projects.id"],
             name="fk_executions_project",
             ondelete="CASCADE",
         ),
@@ -141,6 +158,10 @@ def downgrade() -> None:
     op.drop_table("projects")
 
     sa.Enum(
-        "pending", "running", "completed", "failed", "refining",
+        "pending",
+        "running",
+        "completed",
+        "failed",
+        "refining",
         name="project_status",
     ).drop(op.get_bind())

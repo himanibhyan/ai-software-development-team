@@ -53,7 +53,6 @@ class TestGraphState:
         assert state["revision"] == 1
 
     def test_state_with_custom_project_id(self, sample_idea: str):
-        from uuid import uuid4
         pid = uuid4()
         state = create_initial_state(idea=sample_idea, project_id=pid)
         assert state["project_id"] == str(pid)

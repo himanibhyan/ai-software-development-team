@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from app.graph.edges import (
-    route_after_code_review,
-    route_after_requirements,
     route_after_architecture,
+    route_after_code_review,
     route_after_development,
-    route_after_testing,
     route_after_documentation,
+    route_after_requirements,
+    route_after_testing,
     route_after_validation,
 )
 from app.graph.state import create_initial_state
