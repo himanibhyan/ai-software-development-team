@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from app.agents.registry import AgentRegistry
 from app.agents import registry as agent_registry_module
+from app.agents.registry import AgentRegistry
 from app.core.exceptions import AppException
 from app.core.logging import get_logger
 from app.graph.state import GraphState
