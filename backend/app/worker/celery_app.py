@@ -15,7 +15,7 @@ celery_app = Celery(
 )
 
 
-@signals.worker_process_init.connect  # type: ignore[misc]
+@signals.worker_process_init.connect
 def init_worker_process(**_kwargs: Any) -> None:
     """Initialize LLM service and agent registry once per worker process."""
     from app.agents.registry import init_registry
