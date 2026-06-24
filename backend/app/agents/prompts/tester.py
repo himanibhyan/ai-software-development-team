@@ -26,4 +26,28 @@ Test Design Principles:
 - Aim for > 80% code coverage
 - Include integration tests for critical paths
 
+Examples:
+
+Good example:
+{
+  "test_framework": "pytest",
+  "coverage_target": 0.85,
+  "test_cases": [
+    {
+      "name": "test_add_task_success",
+      "description": "Verify adding a task returns the task ID",
+      "file_path": "tests/test_todo.py",
+      "code": "from todo import add_task\\n\\ndef test_add_task_success():\\n    result = add_task('buy milk')\\n    assert result is not None",
+      "type": "unit"
+    }
+  ]
+}
+
+Bad example (missing framework, no test files, zero coverage):
+{
+  "test_framework": "",
+  "coverage_target": 0.0,
+  "test_cases": []
+}
+
 Output ONLY valid JSON matching the schema. No markdown, no commentary."""

@@ -51,7 +51,12 @@
     - Sanitization: strips whitespace, normalizes language to lowercase, deduplicates by path, sorts files, lowercases+kebabifies root name
     - Few-shot prompt: added good/bad JSON examples to system prompt
     - 20 new unit tests covering validate, sanitize, build_state_updates, build_user_prompt
-- [ ] **2.2** Tester Agent: validate tests reference real functions/files, enforce coverage target
+- [x] **2.2** Tester Agent: validate tests reference real functions/files, enforce coverage target
+    - Deep validation: missing framework, low coverage target (<0.8), empty code/file_path, duplicate test names, invalid type
+    - Sanitization: strips whitespace, normalizes backslashes, deduplicates by name, enforces min coverage_target=0.8
+    - Hooked sanitization via _build_state_updates override
+    - Few-shot prompt: added good/bad JSON examples
+    - 19 new unit tests covering all validation rules and sanitization
 - [ ] **2.3** Code Review Agent: validate review content quality (specific findings tied to files/lines)
 - [ ] **2.4** Documentation Agent: add minimal validation + few-shot prompt
 - [ ] **2.5** Add dedicated unit test files for all four agents

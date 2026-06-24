@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import re
+from typing import Any
+
 from app.agents.base import BaseAgent
 from app.agents.prompts.tester import SYSTEM_PROMPT
+from app.core.logging import get_logger
 from app.graph.state import GraphState
 from app.models.domain.enums import AgentType
-from app.models.domain.project import TestSuite
+from app.models.domain.project import TestCase, TestSuite
+
+logger = get_logger(__name__)
 
 
 class TesterAgent(BaseAgent):
@@ -50,6 +56,77 @@ class TesterAgent(BaseAgent):
         )
 
     def _validate_output(self, output: TestSuite) -> TestSuite:
+        errors: list[str] = []
+
         if not output.test_cases:
             raise ValueError("Test suite must contain at least one test case")
+
+        if not output.test_framework.strip():
+            errors.append("Test framework must be specified")
+
+        if output.coverage_target < 0.8:
+            errors.append(f"Coverage target too low: {output.coverage_target} (minimum 0.8)")
+
+        seen_names: set[str] = set()
+        for i, tc in enumerate(output.test_cases):
+            if not tc.file_path.strip():
+                errors.append(f"Test case '{tc.name}' at index {i} has no file_path")
+            if not tc.code.strip():
+                errors.append(f"Test case '{tc.name}' at index {i} has empty code")
+            if tc.name in seen_names:
+                errors.append(f"Duplicate test name: '{tc.name}'")
+            seen_names.add(tc.name)
+            if tc.type not in ("unit", "integration"):
+                errors.append(f"Test case '{tc.name}' has invalid type: '{tc.type}' (must be 'unit' or 'integration')")
+
+        if errors:
+            error_summary = "\n".join(f"  - {e}" for e in errors)
+            logger.warning(
+                "tester_validation_errors",
+                error_count=len(errors),
+                test_count=len(output.test_cases),
+            )
+            raise ValueError(
+                f"Tester validation failed with {len(errors)} issue(s):\n{error_summary}"
+            )
+
         return output
+
+    def _sanitize_output(self, output: TestSuite) -> TestSuite:
+        seen: dict[str, TestCase] = {}
+        for tc in output.test_cases:
+            if tc.name in seen:
+                continue
+            seen[tc.name] = TestCase(
+                name=tc.name.strip(),
+                description=tc.description.strip(),
+                file_path=tc.file_path.strip().replace("\\", "/"),
+                code=tc.code.strip(),
+                type=tc.type.strip().lower(),
+            )
+        sorted_cases = sorted(seen.values(), key=lambda x: x.name)
+        return TestSuite(
+            test_framework=output.test_framework.strip().lower(),
+            test_config=output.test_config,
+            test_cases=sorted_cases,
+            coverage_target=max(output.coverage_target, 0.8),
+        )
+
+    def _build_state_updates(
+        self,
+        state: GraphState,
+        output: TestSuite,
+        token_usage: dict[str, int],
+    ) -> dict[str, Any]:
+        sanitized = self._sanitize_output(output)
+        field = self._state_field()
+        updates: dict[str, Any] = {
+            field: sanitized.model_dump(),
+            "current_agent": self.agent_type.value,
+            "revision": state["revision"] + 1,
+        }
+        if token_usage:
+            updates["token_usage"] = [
+                {"agent": self.agent_type.value, **token_usage}
+            ]
+        return updates
