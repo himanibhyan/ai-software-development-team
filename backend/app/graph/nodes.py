@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+from app.agents.registry import AgentRegistry
 from app.agents import registry as agent_registry_module
 from app.core.exceptions import AppException
 from app.core.logging import get_logger
@@ -42,7 +43,7 @@ def _publisher(state: GraphState) -> EventPublisher:
     return EventPublisher(state["project_id"])
 
 
-def _get_registry():
+def _get_registry() -> AgentRegistry:
     reg = agent_registry_module.registry
     if reg is None:
         raise AppException("Agent registry not initialized. Call init_registry() during startup.")

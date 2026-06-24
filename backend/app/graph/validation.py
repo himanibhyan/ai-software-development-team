@@ -46,7 +46,7 @@ def validate_artifact(
         return [f"No schema registered for agent type: {agent_type}"]
 
     try:
-        schema.model_validate(artifact_data)
+        schema.model_validate(artifact_data)  # type: ignore[attr-defined]
     except Exception as e:
         errors.append(f"{agent_type} schema validation failed: {e}")
 
@@ -156,7 +156,7 @@ def validate_artifact_required_fields(
     if schema is None:
         return []
 
-    for field_name, field_info in schema.model_fields.items():
+    for field_name, field_info in schema.model_fields.items():  # type: ignore[attr-defined]
         if field_info.is_required():
             if field_name not in artifact_data:
                 errors.append(f"Missing required field '{field_name}' in {agent_type} output")

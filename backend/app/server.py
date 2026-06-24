@@ -3,8 +3,9 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.router import router
 from app.config import settings
@@ -17,7 +18,7 @@ try:
 
     HAS_PROMETHEUS = True
 except ImportError:
-    Instrumentator = None  # type: ignore
+    Instrumentator = None
     HAS_PROMETHEUS = False
 from app.agents.registry import init_registry
 from app.db.base import Base
@@ -108,9 +109,7 @@ def create_app() -> FastAPI:
 
     # Exception handler
     @app.exception_handler(AppException)
-    async def app_exception_handler(_request, exc: AppException):
-        from fastapi.responses import JSONResponse
-
+    async def app_exception_handler(_request: Request, exc: AppException) -> JSONResponse:
         return JSONResponse(
             status_code=exc.status_code,
             content={

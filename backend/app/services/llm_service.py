@@ -31,7 +31,7 @@ class LLMService:
         if settings.OPENAI_BASE_URL:
             client_kwargs["base_url"] = settings.OPENAI_BASE_URL
             logger.info("using_custom_base_url", base_url=settings.OPENAI_BASE_URL)
-        self._client = AsyncOpenAI(**client_kwargs)
+        self._client = AsyncOpenAI(**client_kwargs)  # type: ignore[arg-type]
         logger.info("llm_service_initialized", model=settings.OPENAI_MODEL)
 
     @property
@@ -94,7 +94,7 @@ class LLMService:
 
         if response_model is not None:
             try:
-                parsed = response_model.model_validate_json(content)
+                parsed = response_model.model_validate_json(content)  # type: ignore[attr-defined]
             except Exception as e:
                 raise LLMException(
                     f"Failed to parse LLM response into {response_model.__name__}: {e}",

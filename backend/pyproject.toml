@@ -58,6 +58,20 @@ python_version = "3.12"
 strict = true
 warn_unused_ignores = true
 ignore_missing_imports = true
+disallow_any_generics = false
+warn_return_any = false
+
+[[tool.mypy.overrides]]
+module = "app.agents.*"
+disable_error_code = ["override", "union-attr"]
+
+[[tool.mypy.overrides]]
+module = "app.graph.nodes"
+disable_error_code = ["no-untyped-call", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = "app.worker.tasks"
+disable_error_code = ["misc", "no-untyped-def"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

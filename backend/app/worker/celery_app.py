@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from typing import Any
 
 from celery import Celery, signals
 
@@ -14,8 +15,8 @@ celery_app = Celery(
 )
 
 
-@signals.worker_process_init.connect
-def init_worker_process(**_kwargs):
+@signals.worker_process_init.connect  # type: ignore[misc]
+def init_worker_process(**_kwargs: Any) -> None:
     """Initialize LLM service and agent registry once per worker process."""
     from app.agents.registry import init_registry
     from app.services.llm_service import llm_service

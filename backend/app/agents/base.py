@@ -58,17 +58,6 @@ class BaseAgent(ABC):
         return "\n\n".join(context_parts)
 
     async def process(self, state: GraphState) -> dict[str, Any]:
-        """Execute the agent's task and return state updates.
-
-        Args:
-            state: Current pipeline state
-
-        Returns:
-            Dict of state updates to merge
-
-        Raises:
-            AgentException: If processing fails after retries
-        """
         logger.info(
             "agent_started",
             agent_type=self.agent_type.value,
@@ -126,6 +115,11 @@ class BaseAgent(ABC):
                     agent_type=self.agent_type.value,
                     message=f"Execution failed after {self.max_retries + 1} attempts: {e}",
                 ) from e
+
+        raise AgentException(
+            agent_type=self.agent_type.value,
+            message=f"Process exited loop without returning after {self.max_retries + 1} attempts",
+        )
 
     def _validate_output(self, output: BaseModel) -> BaseModel:
         """Validate the agent's output. Override for domain-specific checks."""

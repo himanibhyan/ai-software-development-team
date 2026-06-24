@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, StateGraph
+from langgraph.graph.state import CompiledStateGraph
 
 from app.core.logging import get_logger
 from app.graph.edges import (
@@ -29,7 +30,7 @@ from app.graph.state import GraphState
 logger = get_logger(__name__)
 
 
-def build_pipeline() -> StateGraph:
+def build_pipeline() -> CompiledStateGraph:
     """Construct the LangGraph StateGraph pipeline.
 
     The pipeline follows a sequential agent workflow with a feedback loop:
@@ -147,7 +148,7 @@ def _clean_pending_steps(completed_steps: list[str]) -> list[str]:
 def resume_from_checkpoint(
     checkpoint_path: str,
     fresh_pipeline: bool = False,
-) -> tuple[StateGraph, GraphState]:
+) -> tuple[CompiledStateGraph, GraphState]:
     """Resume pipeline execution from a saved checkpoint.
 
     Loads the checkpoint, reconstructs the GraphState with ``resume_mode=True``,
@@ -221,10 +222,10 @@ def resume_from_checkpoint(
 
 
 # Pre-compiled singleton
-_pipeline_instance: StateGraph | None = None
+_pipeline_instance: CompiledStateGraph | None = None
 
 
-def get_pipeline() -> StateGraph:
+def get_pipeline() -> CompiledStateGraph:
     """Get or create the pipeline singleton."""
     global _pipeline_instance
     if _pipeline_instance is None:

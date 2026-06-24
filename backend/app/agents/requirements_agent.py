@@ -288,7 +288,7 @@ class RequirementsAgent(BaseAgent):
         sanitized = self._sanitize_output(output)
         field = self._state_field()
 
-        updates = {
+        updates: dict[str, Any] = {
             field: sanitized.model_dump(),
             "current_agent": self.agent_type.value,
             "revision": state["revision"] + 1,

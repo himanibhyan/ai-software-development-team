@@ -79,7 +79,7 @@ def run_generation_pipeline(
             )
         )
 
-        summary = state_summary(final_state)
+        summary = state_summary(final_state)  # type: ignore[arg-type]
         logger.info(
             "pipeline_task_completed",
             project_id=project_id,

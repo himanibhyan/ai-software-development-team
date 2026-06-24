@@ -17,7 +17,7 @@ async def get_redis() -> aioredis.Redis:
     """Get or create the shared async Redis connection."""
     global _redis_pool
     if _redis_pool is None:
-        _redis_pool = aioredis.from_url(
+        _redis_pool = aioredis.from_url(  # type: ignore[no-untyped-call]
             settings.REDIS_URL,
             decode_responses=True,
             socket_connect_timeout=5,

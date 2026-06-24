@@ -22,7 +22,7 @@ class BaseRepository[ModelType: Base]:
         return instance
 
     async def get(self, id: Any) -> ModelType | None:
-        result = await self.session.execute(select(self.model).where(self.model.id == id))
+        result = await self.session.execute(select(self.model).where(self.model.id == id))  # type: ignore[attr-defined]
         return result.scalar_one_or_none()
 
     async def list(

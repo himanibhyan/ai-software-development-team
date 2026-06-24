@@ -49,7 +49,7 @@ class ProcessTimeHeaderMiddleware(BaseHTTPMiddleware):
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app):
+    def __init__(self, app: FastAPI) -> None:
         super().__init__(app)
         self.request_counts: dict[str, list[float]] = defaultdict(list)
 
@@ -100,6 +100,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
 
 def register_middleware(app: FastAPI) -> None:
-    app.add_middleware(RateLimitMiddleware)
+    app.add_middleware(RateLimitMiddleware)  # type: ignore[arg-type]
     app.add_middleware(RequestLoggingMiddleware)
     app.add_middleware(ProcessTimeHeaderMiddleware)

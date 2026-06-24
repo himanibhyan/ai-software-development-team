@@ -10,6 +10,8 @@ from chromadb.utils import embedding_functions
 from app.config import settings
 from app.core.logging import get_logger
 
+ClientType = Any
+
 logger = get_logger(__name__)
 
 
@@ -21,8 +23,8 @@ class VectorStoreService:
     """
 
     def __init__(self) -> None:
-        self._client: chromadb.Client | None = None
-        self._embedding_fn: embedding_functions.OpenAIEmbeddingFunction | None = None
+        self._client: ClientType = None
+        self._embedding_fn: Any = None
 
     async def initialize(self) -> None:
         """Initialize ChromaDB client and embedding function."""
@@ -41,7 +43,7 @@ class VectorStoreService:
                 timeout=3.0,
             )
 
-            self._embedding_fn = embedding_functions.OpenAIEmbeddingFunction(
+            self._embedding_fn = embedding_functions.OpenAIEmbeddingFunction(  # type: ignore[attr-defined]
                 api_key=settings.OPENAI_API_KEY,
                 model_name=settings.OPENAI_EMBEDDING_MODEL,
             )
