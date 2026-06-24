@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import verify_auth
 from app.config import settings
 from app.core.logging import get_logger
-from app.db.repositories.artifact_repo import ArtifactRepository
 from app.db.repositories.project_repo import ProjectRepository
 from app.db.session import get_db_session
 from app.models.domain.enums import ProjectStatus

@@ -151,7 +151,7 @@ def resume_from_checkpoint(
     """Resume pipeline execution from a saved checkpoint.
 
     Loads the checkpoint, reconstructs the GraphState with ``resume_mode=True``,
-    and returns a fresh pipeline + state ready for ``pipeline.invoke(state)``.
+    and returns a fresh pipeline + state ready for ``pipeline.ainvoke(state)``.
 
     Completed steps are automatically skipped (nodes are no-ops via
     ``_should_skip`` in ``nodes.py``). The pipeline fast-forwards to
@@ -165,7 +165,7 @@ def resume_from_checkpoint(
             from previous pipeline runs.
 
     Returns:
-        A tuple of ``(pipeline, state)`` ready for ``pipeline.invoke(state)``.
+        A tuple of ``(pipeline, state)`` ready for ``pipeline.ainvoke(state)``.
 
     Raises:
         FileNotFoundError: If the checkpoint path does not exist.
