@@ -125,7 +125,13 @@
 - [x] **5.2** Implement GitHub export feature behind ExportProjectRequest schema
     - `services/github_service.py` — creates GitHub repos, pushes all artifacts as files
     - `POST /api/v1/projects/{id}/export` — endpoint using `ExportProjectRequest`
-- [ ] **5.3** Add Prometheus + Grafana to docker-compose.yml
+- [x] **5.3** Add Prometheus + Grafana to docker-compose.yml
+    - `docker/prometheus/prometheus.yml` — scrapes API, postgres, redis
+    - `docker/grafana/datasources/` — Prometheus datasource provisioning
+    - `docker/grafana/dashboards/` — dashboard provider config
+    - `docker-compose.yml` — added `prometheus` and `grafana` services
+    - `server.py` — conditional `prometheus-fastapi-instrumentator` at `/metrics`
+    - Added `prometheus-fastapi-instrumentator` to `base.txt`
 - [ ] **5.4** Clean up dead scaffolding (docker/, scripts/, src/)
 - [ ] **5.5** Consolidate duplicate dependency declarations (root requirements.txt vs backend/requirements/)
 - [ ] **5.6** Fix stale docstring in pipeline.py (resume_from_checkpoint still references invoke)

@@ -11,6 +11,13 @@ from app.config import settings
 from app.core.exceptions import AppException
 from app.core.logging import get_logger, setup_logging
 from app.core.middleware import register_middleware
+
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+    HAS_PROMETHEUS = True
+except ImportError:
+    Instrumentator = None  # type: ignore
+    HAS_PROMETHEUS = False
 from app.db.base import Base
 from app.db.session import engine
 from app.models.db import ProjectModel, ArtifactModel, ExecutionModel  # noqa: F401 — register all models
@@ -87,6 +94,10 @@ def create_app() -> FastAPI:
 
     # Middleware
     register_middleware(app)
+
+    # Prometheus metrics
+    if HAS_PROMETHEUS:
+        Instrumentator().instrument(app).expose(app)
 
     # Exception handler
     @app.exception_handler(AppException)
