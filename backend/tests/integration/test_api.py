@@ -74,7 +74,7 @@ class TestProjectAPI:
         assert data["project_id"] == project_id
         assert data["status"] in ("pending", "running", "completed", "failed")
 
-    async def test_list_projects_pagination(self, client: AsyncClient, _sample_idea: str):
+    async def test_list_projects_pagination(self, client: AsyncClient, sample_idea: str):  # noqa: ARG002
         resp = await client.get("/api/v1/projects?page=1&page_size=10")
         assert resp.status_code == 200
         data = resp.json()

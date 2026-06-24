@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
+
+import pytest
 
 from app.config import DOCKER_SECRET_MAP, Settings
 
@@ -64,6 +67,8 @@ class TestDockerSecrets:
 
 class TestSettingsDirect:
     def test_default_environment_is_development(self):
+        if os.environ.get("ENVIRONMENT"):
+            pytest.skip("ENVIRONMENT env var is set, cannot test default")
         s = Settings()
         assert s.ENVIRONMENT == "development"
 

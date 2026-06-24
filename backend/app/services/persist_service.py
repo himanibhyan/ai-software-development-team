@@ -26,7 +26,7 @@ class PersistService:
 
     async def persist_agent_output(
         self,
-        _project_repo: ProjectRepository,
+        project_repo: ProjectRepository,  # noqa: ARG002
         artifact_repo: ArtifactRepository,
         project_id: UUID,
         agent_type: str,

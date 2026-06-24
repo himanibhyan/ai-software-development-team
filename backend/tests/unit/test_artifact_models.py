@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID, uuid4
 
+import pydantic
 import pytest
 
 from app.models.domain.artifact import (
@@ -88,7 +89,7 @@ class TestArtifactBase:
             artifact_type=ArtifactType.REQUIREMENTS,
             content={},
         )
-        with pytest.raises(TypeError):
+        with pytest.raises(pydantic.ValidationError):
             art.revision = 5
 
     def test_artifact_auto_generates_id(self):

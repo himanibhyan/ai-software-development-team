@@ -32,4 +32,4 @@ class TestServer:
         assert data["detail"] == "test detail"
         assert data["errors"] == ["extra info"]
 
-        app.router.routes = [r for r in app.router.routes if r.path != "/_test_raise_error"]
+        app.router.routes = [r for r in app.router.routes if not hasattr(r, "path") or r.path != "/_test_raise_error"]
