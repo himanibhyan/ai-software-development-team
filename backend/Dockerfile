@@ -40,6 +40,7 @@ COPY . .
 
 RUN addgroup --system --gid 1001 app && \
     adduser --system --uid 1001 --gid 1001 app && \
+    mkdir -p /app/storage/generated_code /app/storage/manifests /app/storage/logs /app/storage/exports /app/checkpoints /app/backups && \
     chown -R app:app /app
 
 USER app

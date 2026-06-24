@@ -12,6 +12,7 @@ x-shared-env: &shared-env
   ENVIRONMENT: production
   LOG_LEVEL: info
   LOG_FORMAT: json
+  STORAGE_ROOT: /app
 
 x-shared-depends: &shared-depends
   postgres:
@@ -95,6 +96,8 @@ services:
     volumes:
       - generated_projects:/app/generated_projects
       - storage_data:/app/storage
+      - ./checkpoints:/app/checkpoints
+      - ./backups:/app/backups
     depends_on:
       <<: *shared-depends
     restart: unless-stopped
@@ -114,6 +117,8 @@ services:
     volumes:
       - generated_projects:/app/generated_projects
       - storage_data:/app/storage
+      - ./checkpoints:/app/checkpoints
+      - ./backups:/app/backups
     depends_on:
       <<: *shared-depends
     command: >

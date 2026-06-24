@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
     ENVIRONMENT: str = "development"
+    STORAGE_ROOT: str = ""
 
     # API
     API_HOST: str = "0.0.0.0"

@@ -12,7 +12,11 @@ from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+try:
+    from app.config import settings
+    PROJECT_ROOT = Path(settings.STORAGE_ROOT) if settings.STORAGE_ROOT else Path(__file__).resolve().parent.parent.parent.parent
+except (ImportError, AttributeError):
+    PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 STORAGE_DIR = PROJECT_ROOT / "storage"
 CHECKPOINTS_DIR = PROJECT_ROOT / "checkpoints"
 BACKUPS_DIR = PROJECT_ROOT / "backups"
