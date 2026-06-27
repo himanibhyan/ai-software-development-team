@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import asyncio
 import json
+from contextlib import suppress
 from typing import Any
 
 import redis.asyncio as aioredis
@@ -11,26 +13,40 @@ from app.core.logging import get_logger
 logger = get_logger(__name__)
 
 _redis_pool: aioredis.Redis | None = None
+_last_loop_id: int | None = None
 
 
 async def get_redis() -> aioredis.Redis:
-    """Get or create the shared async Redis connection."""
-    global _redis_pool
-    if _redis_pool is None:
+    """Get or create a Redis connection for the current event loop.
+
+    Celery's ForkPoolWorker creates a new event loop per task via
+    ``asyncio.run()``. A connection created in one loop is unusable
+    in another (raises "Event loop is closed"). This function detects
+    loop changes and recreates the connection automatically.
+    """
+    global _redis_pool, _last_loop_id
+    current_loop = id(asyncio.get_running_loop())
+    if _redis_pool is None or _last_loop_id != current_loop:
+        if _redis_pool is not None:
+            with suppress(Exception):
+                await _redis_pool.aclose()
         _redis_pool = aioredis.from_url(  # type: ignore[no-untyped-call]
             settings.REDIS_URL,
             decode_responses=True,
             socket_connect_timeout=5,
         )
+        _last_loop_id = current_loop
     return _redis_pool
 
 
 async def close_redis() -> None:
     """Close the shared Redis connection."""
-    global _redis_pool
+    global _redis_pool, _last_loop_id
     if _redis_pool is not None:
-        await _redis_pool.aclose()
+        with suppress(Exception):
+            await _redis_pool.aclose()
         _redis_pool = None
+        _last_loop_id = None
 
 
 class EventPublisher:
