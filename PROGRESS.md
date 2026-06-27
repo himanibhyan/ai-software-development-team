@@ -186,3 +186,12 @@
 ## Phase 8 — Project complete
 
 All tasks across all phases (0–7) are complete. The project is tagged at v1.0.0 and ready for use.
+
+### Future task — Re-enable ghcr.io image publishing
+
+When a deployment target exists, `docker-build.yml` needs:
+- `docker/setup-buildx-action@v3` step to provision a `docker-container` builder (needed for `type=gha` cache export)
+- Restore `cache-from: type=gha` and `cache-to: type=gha,mode=max` on build-push-action steps
+- Restore `push: true` (or set dynamically based on branch/tag)
+- `permissions: packages: write` is already set at job level
+- `docker/login-action` step is already present
