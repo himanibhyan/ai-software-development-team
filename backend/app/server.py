@@ -13,7 +13,6 @@ from app.config import settings
 from app.core.exceptions import AppException
 from app.core.logging import get_logger, setup_logging
 from app.core.middleware import register_middleware
-from app.db.base import Base
 from app.db.session import engine
 from app.models.db import (  # noqa: F401 — register all models
     ArtifactModel,
@@ -47,10 +46,10 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
         environment=settings.ENVIRONMENT,
     )
 
-    # Initialize database
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("database_tables_verified")
+    # Database tables are managed by Alembic migrations.
+    # Do NOT use Base.metadata.create_all here — it bypasses
+    # Alembic and causes DuplicateTableError on subsequent
+    # ``alembic upgrade head`` runs.
 
     # Initialize external services
     await llm_service.initialize()
