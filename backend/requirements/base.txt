@@ -15,6 +15,7 @@ alembic>=1.13.0,<2.0.0
 
 # AI / LangGraph
 langgraph>=0.1.10,<1.0.0
+langchain-core>=1.0.0,<2.0.0  # needs >=1.4.0 for langchain.debug compat
 langchain-openai>=0.1.0,<1.0.0
 openai>=1.30.0,<2.0.0
 
