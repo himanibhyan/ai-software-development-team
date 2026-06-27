@@ -183,21 +183,24 @@
 
 ---
 
-## Phase 8 — Project complete
+## Phase 8 — v1.1.0 release
 
-All tasks across all phases (0–7) are complete. The project is tagged at v1.0.0 and ready for use.
+Tasks 3 & 4 (agent upgrades, bcrypt fix) completed after v1.0.0. Tasks 1 & 2 (end-to-end pipeline tests with fresh Groq key) delayed — Groq free-tier TPD exhausted for all models; pipeline code, Celery dispatch, Docker stack, and DB persistence all verified working, only LLM API calls fail.
 
-### Secrets rotation ⚠️
-
-- **App API_KEY**: Rotated from `Vrxon5vnA0j_6zmLTPshSyAGLIseYvvBQsz-Xt_OAoU` to a new randomly generated value. `.env` updated.
-- **Groq API key** (stored as `OPENAI_API_KEY` in `.env`, value starting with `gsk_`): Was exposed in chat logs and must be manually revoked at console.groq.com, then a new key generated and saved in `.env` as `OPENAI_API_KEY`.
-
-## Bug fixes applied post-v1.0.0
+### Changes since v1.0.0
 
 - **Bug 1 (fixed)**: Status never persisted to DB after pipeline completion. Replaced async `_update_project_status()` with sync SQLAlchemy engine (psycopg2) to avoid event-loop conflicts in Celery ForkPoolWorker. Replaced async EventPublisher with sync redis.Redis for same reason. The pipeline still runs via `asyncio.run()` (for LangGraph ainvoke), but all DB and Redis I/O is synchronous outside the async scope.
 - **Bug 2 (fixed)**: ArchitectureDoc schema rejected CLI tools with no API/no DB. `DatabaseDesign.tables` and `APISpec.endpoints` now allow empty lists, `APISpec.protocol` accepts `NONE`, `APISpec.base_url`/`auth_method` nullable. Prompt and validation updated.
 - **Bug 3 (fixed)**: `Base.metadata.create_all` in server.py lifespan bypassed Alembic, causing `DuplicateTableError` on fresh deployments. Removed `create_all`. Alembic is now the sole schema management path.
 - **Redis event-loop-closed**: `get_redis()` in events.py uses `_last_loop_id` to detect event-loop changes and recreate connections. In the Celery task, event publishing now uses sync `redis.Redis` instead of `redis.asyncio`.
+- **LangChain compat**: Pinned `langchain-core>=1.0.0` in requirements to fix `module 'langchain' has no attribute 'debug'`.
+- **Debug logging**: Added `celery_dispatch_attempt`/`celery_dispatch_success` log lines to `_dispatch_pipeline` in `projects.py` to confirm Celery dispatch works from HTTP route.
+- **Phase 2 complete**: All four agents (Developer, Tester, Code Review, Documentation) upgraded with deep validation, sanitization, few-shot prompts, and 73 dedicated tests.
+- **Phase 1 complete**: passlib+bcrypt fixed (`bcrypt>=4.1.0,<5.0.0`), 411/411 tests passing, no xfail.
+
+### v1.1.0 tag
+
+Tagged at commit covering all above fixes and Phase 2 completion. Tasks 1 & 2 deferred — require LLM API availability.
 
 ### Future task — Re-enable ghcr.io image publishing
 

@@ -40,10 +40,21 @@ def _dispatch_pipeline(idea: str, project_id: str, constraints: dict | None = No
         )
         return
     try:
-        run_generation_pipeline.delay(
+        logger.info(
+            "celery_dispatch_attempt",
+            project_id=project_id,
+            idea_preview=idea[:60],
+            celery_broker=settings.REDIS_URL,
+        )
+        task = run_generation_pipeline.delay(
             idea=idea,
             project_id=project_id,
             constraints=constraints,
+        )
+        logger.info(
+            "celery_dispatch_success",
+            project_id=project_id,
+            task_id=task.id,
         )
     except Exception as e:
         logger.error(
